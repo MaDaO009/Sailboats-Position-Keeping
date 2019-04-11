@@ -7,7 +7,7 @@ import math
 import threading
 from sailboat_4_DoF import sailboat
 import random
-import four_DOF_simulator
+import four_DOF_simulator_v2
 import boat_profile
 import xlwt
 import xlrd
@@ -177,9 +177,17 @@ class visualazation():
         self.counter+=1
         
         for i in range(0,10):
+            if self.y>9:
+                self.true_wind[0]=9
+            elif self.y>8:
+                self.true_wind[0]=self.y*6.5-49.5
+            elif self.y>2:
+                self.true_wind[0]=0.0037*self.y**3+0.039*self.y**2-0.32*self.y+1.738
+            else:
+                self.true_wind[0]=0.5
             self.moving_sail()
             self.true_sail=self.get_true_sail(self.sail)
-            a,b,self.app_wind[1]=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
+            a,b,self.app_wind[1]=four_DOF_simulator_v2.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind,self.counter)
             [self.velocity[0],self.velocity[1],self.roll_angular_velocity,self.angular_velocity]=-a
             
             self.velocity[0]*=-1
@@ -332,10 +340,10 @@ class visualazation():
         
     def plot(self):
         ani = animation.FuncAnimation(
-            self.figure, self.animate1, init_func=self.init1, interval=200, blit=True, save_count=50)
+            self.figure, self.animate1, init_func=self.init1, interval=50, blit=True, save_count=50)
     
         plt.show()
         plt.close()
-    
-my_plot=visualazation()
-my_plot.plot()
+if __name__ == "__main__":  
+    my_plot=visualazation()
+    my_plot.plot()

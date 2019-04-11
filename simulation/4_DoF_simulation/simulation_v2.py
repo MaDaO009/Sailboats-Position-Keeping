@@ -5,12 +5,10 @@ import matplotlib.gridspec as gridspec
 import time
 import math
 import threading
-from sailboat_4_DoF import sailboat
+from sailboat_4_DOF_v2 import sailboat
 import random
 import four_DOF_simulator
 import boat_profile
-import xlwt
-import xlrd
 
 
 class visualazation():
@@ -22,42 +20,33 @@ class visualazation():
         self.init_window_data()
         
     def initialize_parameters(self):
-        self.counter=0
-        self.my_boat=sailboat(location=[2,3])
+        self.start_time=time.time()
+        self.my_boat=sailboat(position=[2,3,0,0])
         self.boat_generator=boat_profile.boat_profile(boat_size=0.15)
-        self.all_line=[]
-        self.workbook = xlrd.open_workbook('201901212145.xlsx')
-        self.table=self.workbook.sheets()[0]
-        self.x=self.table.cell(3,3).value
-        self.y=self.table.cell(3,4).value
-        self.location=[self.x,self.y]
-        self.heading_angle=self.table.cell(3,6).value
-        self.desired_angle=self.table.cell(3,5).value
-        self.rudder=self.table.cell(3,1).value
-        self.sail=self.table.cell(3,2).value
         
+        self.all_line=[]
+        self.heading_angle=0
+        self.desired_angle=0
+        self.rudder=0
+        self.sail=0
+        self.x=2
+        self.y=3
         self.v=0
         self.u=0
         self.w=0
-        self.target=[3,5.5]
+        self.target=self.my_boat.target
         self.boat_size=0.15
-        self.dT=1.4
-        self.dM=2.8
-        self.true_wind=[0,-5]
-        self.display_rate=1
-
         self.sample_time=0.01
-
         self.velocity=[0,0]
         self.app_wind=[0,0]
         self.angular_velocity,self.roll_angular_velocity=0,0
-        
-        
+        self.last_sail=0
         self.roll=0
-        self.true_wind=[3,-math.pi/2]
-        
-        
-        
+        # self.true_wind=[self.my_boat.true_wind[0],math.pi/2-self.my_boat.true_wind[1]]
+        self.true_wind=self.my_boat.true_wind
+        # print('bbbbb',self.my_boat.true_wind[1])
+        self.true_wind[1]=math.pi/2-self.true_wind[1]
+        print('aaaaaa',self.my_boat.true_wind[1])
     
     def create_window(self):
         self.figure = plt.figure()
@@ -100,8 +89,8 @@ class visualazation():
         self.gs2.update(top=top, bottom=bottom)
 
     def init_subwindows_data(self):
-        self.location_x_data = np.linspace(self.my_boat.location[0],self.my_boat.location[0],300)
-        self.location_y_data=np.linspace(self.my_boat.location[1],self.my_boat.location[1],300)
+        self.location_x_data = np.linspace(self.my_boat.position[0],self.my_boat.position[0],300)
+        self.location_y_data=np.linspace(self.my_boat.position[1],self.my_boat.position[1],300)
         self.trajectory_line, = self.main_window.plot(self.location_x_data,self.location_y_data)
         self.v_x_data = np.linspace(0, 5, 60)
         self.v_data=np.linspace(self.v,self.v,60)
@@ -155,7 +144,7 @@ class visualazation():
         
         self.wind_y_data=np.array([3.75,5])
         self.wind_x_data=np.array([6.75,6.75])
-        self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='black')
+        self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='b')
         
         self.all_line.append(self.line_window)
         self.all_line.append(self.line_boundary)
@@ -166,18 +155,21 @@ class visualazation():
         return self.all_line
 
     def to_next_moment(self):
-        self.rudder,self.target_sail=self.my_boat.rudder+0,self.my_boat.sail+0
+        # self.rudder,self.target_sail=self.my_boat.rudder+0,self.my_boat.sail+0
         # print('aaaaaaaaaaaaaaaaasail',self.sail)
         
         
         for i in range(0,10):
             self.moving_sail()
+    
             self.true_sail=self.get_true_sail()
-            # self.true_wind=
-            a,b,self.app_wind[1]=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
+            a,b,self.app_wind=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
             [self.velocity[0],self.velocity[1],self.roll_angular_velocity,self.angular_velocity]=-a
-            # print(self.velocity,'v')
+            self.app_wind[1]=-self.app_wind[1]
             self.velocity[0]*=-1
+            # print(self.velocity,'v')
+
+            
             [self.y,self.x,self.roll,self.heading_angle]=b
             self.roll=-self.roll
             self.heading_angle=math.pi/2-self.heading_angle
@@ -185,11 +177,12 @@ class visualazation():
             # print(self.roll)
         # print("aaaaaa")
         # print(wind_effect_on_v,g_s*math.sin(self.sail))
-        self.my_boat.updata_pos(self.x,self.y,self.heading_angle,self.roll)
+        self.rudder,self.target_sail,self.desired_angle=self.my_boat.update_state(self.true_wind,[self.x,self.y,self.roll,self.heading_angle])
         #+random.gauss(0,0.01)
-        self.my_boat.update_state()
-
+        print(self.target_sail,self.sail,self.true_sail,self.app_wind)
+        
     def moving_sail(self):
+        
         try:
             if abs(self.target_sail-self.last_sail)>0.01:
                 self.sail+=self.sign(self.target_sail-self.last_sail)*0.01
@@ -234,10 +227,8 @@ class visualazation():
     def update_data(self):
         self.desired_angle=self.my_boat.desired_angle
         
-        self.w=self.my_boat.angular_velocity
-        self.v=self.my_boat.velocity[0]
+        [self.v,self.u,self.p,self.w]=self.my_boat.velocity
         
-        self.u=self.my_boat.velocity[1]
         # print(self.v,u)
         self.location_x_data=np.delete(self.location_x_data,0,0)
         self.location_x_data=np.append(self.location_x_data,[self.x],0)
@@ -282,8 +273,8 @@ class visualazation():
         coo_wind=[0,-2]
         # del_x=coo_wind[0]*2*self.boat_size
         # del_y=coo_wind[1]*2*self.boat_size
-        del_x=-math.sin(self.my_boat.roll)
-        del_y=math.cos(self.my_boat.roll)
+        del_x=-math.sin(self.roll)
+        del_y=math.cos(self.roll)
         self.wind_y_data=np.array([3.75,del_y+3.75])
         self.wind_x_data=np.array([6.75,del_x+6.75])
         self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='black')
