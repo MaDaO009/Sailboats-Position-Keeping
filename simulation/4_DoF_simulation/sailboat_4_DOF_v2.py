@@ -59,6 +59,7 @@ class sailboat:
     ## predict the state for next moment and make decision  
     def update_state(self,true_wind,new_location):
         self.time+=1
+        new_location[3]=self.regular_angle(new_location[3])
         boat_to_target_angle=math.atan2(self.target[1]-self.position[1],self.target[0]-self.position[0])
 
         if self.time>self.runtimes:
@@ -72,7 +73,7 @@ class sailboat:
         [self.desired_angle,self.keeping_state,self.force_turning_angle,self.tacking_angle,
         self.tacking_sign,self.start_tacking_time]=get_desired_angle.run(self.velocity,
         self.position,self.target,self.true_wind,self.dT,self.dM,self.desired_angle,self.tacking_angle,self.tacking_sign,
-        self.start_tacking_time,self.time,self.keeping_state)
+        self.start_tacking_time,self.time,self.keeping_state,self.force_turning_angle)
 
         if self.time>self.runtimes-200:  ### it's time to go home
             self.desired_angle=-math.pi/2
