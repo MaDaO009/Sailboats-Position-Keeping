@@ -12,7 +12,7 @@ class PID:
     """PID Controller
     """
 
-    def __init__(self, P=0.45, I=0.4, D=0.05,minimum=-0.7,maximum=0.7,SetPoint=0):
+    def __init__(self, P=0.45, I=0.2, D=0.3,minimum=-0.7,maximum=0.7,SetPoint=0):
 
         self.Kp = P
         self.Ki = I
@@ -21,7 +21,7 @@ class PID:
         self.max=maximum
         self.SetPoint=SetPoint
         self.ITerm_max=0.25
-        self.DTerm_max=0.1
+        self.DTerm_max=0.4
 
         self.sample_time = 0.1
         self.current_time = time.time()

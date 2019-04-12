@@ -18,6 +18,8 @@ def main():
     sail_type='up'
     rudder_type='up'
     while True:
+        if gl.get_value('flag'):
+            break
         last_rudder=rudder
         last_sail=sail
         for event in pygame.event.get():

@@ -10,6 +10,7 @@ Main program for station keeping.
 
 
 import time
+import math
 import globalvar as gl
 import threading
 import controller_4_DoF
@@ -27,18 +28,19 @@ if __name__ == "__main__":
     ser=serial.Serial('COM3',57600)
 
     gl.set_value('flag',False) # Stop sign
-    gl.set_value('heading_angle',0) # initial heading angle zero
+     # initial heading angle zero
     gl.set_value('desired_angle',0)
     gl.set_value('sail',0) 
     gl.set_value('rudder',0)
     gl.set_value('frequency',10)
-
+    gl.set_value('true_wind',[1.5,-math.pi/2])
     gl.set_value('target',[0,0]) 
     gl.set_value('x',0)
     gl.set_value('y',0)
     gl.set_value('roll',0)
+    gl.set_value('heading_angle',0)
     gl.set_value('keeping_state',1)
-    gl.set_value('tacking_state','not')
+    gl.set_value('tacking_angle',None)
     gl.set_value('current',0)
     gl.set_value('voltage',0)
     # gl.set_value('ser',ser)
@@ -57,7 +59,7 @@ if __name__ == "__main__":
     t3.start() # start thread 3
     # t4.start()
     t5.start()
-    my_plot=visualazition.visualazation()
+    my_plot=visualization.visualazation()
     my_plot.plot()
 
     t1.join() # wait for the t1 thread to complete

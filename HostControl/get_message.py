@@ -26,7 +26,7 @@ def run(ser):
             if len(mess)==4:
                 a=mess[0]
                 a=re.sub('\D','',a)
-                roll=mess[1]/57.32
+                roll=int(mess[1])/57.32
                 voltage=mess[1]
                 current=mess[2]
                 current=re.sub('\D','',current)

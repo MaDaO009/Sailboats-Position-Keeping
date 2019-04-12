@@ -12,7 +12,7 @@ Updated on FRI DEC 29 13:56:39 2018
 
 import time
 import globalvar as gl
-from sailboat_4_DoF import sailboat
+from sailboat_4_DOF_v2 import sailboat
 import math
 import serial 
 import re
@@ -42,7 +42,7 @@ def run(ser):
 
     
     
-    my_boat=sailboat()
+    my_boat=sailboat(runtimes=100)
     target=my_boat.target
     gl.set_value('target',target)
     times=0
@@ -53,7 +53,7 @@ def run(ser):
         # get_message(ser)
         if my_boat.flag==True:
             gl.set_value('flag',True)
-            print('Program stops!',my_boat.d)
+            print('Program stops!')
             
             break
 
@@ -68,16 +68,20 @@ def run(ser):
         x=gl.get_value('x')
         y=gl.get_value('y')
         heading_angle=gl.get_value('heading_angle')
+        roll=gl.get_value('roll')
         my_boat.frequency=frequency
-        my_boat.updata_pos(x,y,heading_angle,0)
+        
+        rudder,sail,desired_angle=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
+        
         v=my_boat.velocity[0]
         u=my_boat.velocity[1]
-        w=my_boat.angular_velocity
-        # tacking_state=my_boat.tacking_state
+        p=my_boat.velocity[2]
+        w=my_boat.velocity[3]
+        # tacking_angle=my_boat.tacking_angle
         keeping_state=my_boat.keeping_state
         
         ##control the rudder and sail
-        rudder,sail,desired_angle=my_boat.update_state()
+        
         rudder= float('{0:.2f}'.format(rudder))
         sail= float('{0:.2f}'.format(sail))
         send(ser,rudder,sail,heading_angle)
@@ -87,9 +91,10 @@ def run(ser):
         last_sail_value=sail
 
         #change the global variables
-        gl.set_value('tacking_state',my_boat.tacking_state)
+        gl.set_value('tacking_angle',my_boat.tacking_angle)
         gl.set_value('v',v)
         gl.set_value('u',u)
+        gl.set_value('p',p)
         gl.set_value('w',w)
         
         # print(u,v,w)
