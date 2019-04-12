@@ -31,6 +31,7 @@ class visualazation():
         self.sail=0
         self.x,self.y,self.roll,self.heading_angle=self.my_boat.position
         self.v=0
+        self.target_v=0
         self.u=0
         self.w=0
         self.target=self.my_boat.target
@@ -103,7 +104,9 @@ class visualazation():
         self.trajectory_line, = self.main_window.plot(self.location_x_data,self.location_y_data)
         self.v_x_data = np.linspace(0, 5, 60)
         self.v_data=np.linspace(self.v,self.v,60)
+        self.target_v_data=np.linspace(0,0,60)
         self.line_forward_velocity, = self.forward_velocity_window.plot(self.v_x_data, self.v_data)
+        self.line_target_velocity, = self.forward_velocity_window.plot(self.v_x_data, self.target_v_data,color='gray')
         # x2_data = np.linspace(0, 5, 60)
         self.u_data=np.linspace(self.u,self.u,60)
         self.line_side_velocity, = self.side_velocity_window.plot(self.v_x_data, self.u_data)
@@ -112,8 +115,10 @@ class visualazation():
         self.line_heading, = self.angular_velocity_window.plot(self.v_x_data, self.heading_data)
         self.desired_angle_data=np.linspace(self.desired_angle,self.desired_angle,60)
         self.line_desired_angle, = self.angular_velocity_window.plot(self.v_x_data, self.desired_angle_data,color='gray')
+        ####0-3
         self.all_line.append(self.trajectory_line)
         self.all_line.append(self.line_forward_velocity)
+        self.all_line.append(self.line_target_velocity)
         self.all_line.append(self.line_side_velocity)
         self.all_line.append(self.line_heading)
         
@@ -124,7 +129,7 @@ class visualazation():
         
         # current_x_data,current_y_data,current_rudder_x_data,current_rudder_y_data,current_sail_x_data,current_sail_y_data=self.boat_generator.get_lines(0,0,0,0,0,0)
         data=self.boat_generator.get_lines(0,0,0,0,0,0)
-        
+        ###4-6
         for i in range(3):
             exec ("self.line%s,=self.main_window.plot(data[%d][0],data[%d][0],color='b')"%(i+1,i,i))
             exec ("self.all_line.append(self.line%s)"%(i+1))
@@ -132,6 +137,7 @@ class visualazation():
         
         self.line_disired_angle,=self.main_window.plot([1.5*math.cos(self.heading_angle)*self.boat_size,1.5*math.cos(self.heading_angle)+math.cos(self.desired_angle)*self.boat_size],
                                     [1.5*math.sin(self.heading_angle)*self.boat_size,1.5*math.sin(self.heading_angle)+math.sin(self.desired_angle)*self.boat_size],color='gray')
+        ###7
         self.all_line.append(self.line_disired_angle)
 
     def init_window_data(self):
@@ -147,20 +153,23 @@ class visualazation():
         self.boat_generator.set_boat_size(0.75)
         data=self.boat_generator.get_lines(0,0,6.75,1.25,0,0)
         self.boat_generator.set_boat_size(0.15)
+        ### 8-10
         for i in range(3):
             exec ("self.window_line%s,=self.main_window.plot(data[%d][0],data[%d][1],color='b')"%(i+1,i,i))
             exec ("self.all_line.append(self.window_line%s)"%(i+1))
-        
+        print('6')
         self.wind_y_data=np.array([3.75,5])
         self.wind_x_data=np.array([6.75,6.75])
         self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='b')
-        
+        ### 11-13
         self.all_line.append(self.line_window)
         self.all_line.append(self.line_boundary)
         self.all_line.append(self.line_wind)
+        # print()
         
     def init1(self):  # only required for blitting to give a clean slate.
-        # print(self.all_line)
+        print(self.all_line)
+
         return self.all_line
 
     def to_next_moment(self):
@@ -192,7 +201,7 @@ class visualazation():
         math.pi/2-self.true_wind[1]],[self.x,self.y,self.roll,self.heading_angle])
         #+random.gauss(0,0.01)
         # print(self.target_sail,self.sail,self.true_sail,self.app_wind)
-        print(self.target_sail,self.sail,acc,self.my_boat.tacking_angle,self.my_boat.force_turning_angle)
+        print(self.roll)
         
     def moving_sail(self):
         
@@ -254,6 +263,10 @@ class visualazation():
         self.v_data=np.append(self.v_data,[self.v],0)
         self.line_forward_velocity.set_ydata(self.v_data)  # update the data.
 
+        self.target_v_data=np.delete(self.target_v_data,0,0)
+        self.target_v_data=np.append(self.target_v_data,[self.my_boat.target_v],0)
+        self.line_target_velocity.set_ydata(self.target_v_data)
+
         
         self.u_data=np.delete(self.u_data,0,0)
         self.u_data=np.append(self.u_data,[self.u],0)
@@ -270,9 +283,9 @@ class visualazation():
         
         for i in range(3):
             # exec ("self.line%s,=self.main_window.plot(data[%d][0],data[%d][1],color='b')"%(i+1,i,i))
-            exec ("self.all_line[%d].set_data([data[%d][0],data[%d][1]])"%(i+4,i,i))
+            exec ("self.all_line[%d].set_data([data[%d][0],data[%d][1]])"%(i+5,i,i))
         
-        self.all_line[7].set_data([1.5*math.cos(self.heading_angle)*self.boat_size+self.x,1.5*math.cos(self.heading_angle)*self.boat_size+math.cos(self.desired_angle)*self.boat_size+self.x],
+        self.all_line[8].set_data([1.5*math.cos(self.heading_angle)*self.boat_size+self.x,1.5*math.cos(self.heading_angle)*self.boat_size+math.cos(self.desired_angle)*self.boat_size+self.x],
                                     [1.5*math.sin(self.heading_angle)*self.boat_size+self.y,1.5*math.sin(self.heading_angle)*self.boat_size+math.sin(self.desired_angle)*self.boat_size+self.y])
 
     def update_window_boat(self):
@@ -281,7 +294,7 @@ class visualazation():
         self.boat_generator.set_boat_size(0.15)
         for i in range(3):
             # exec ("self.window_line%s,=self.main_window.plot(data[%d][0],data[%d][1],color='b')"%(i+1,i,i))
-            exec ("self.all_line[%d].set_data([data[%d][0],data[%d][1]])"%(i+8,i,i))
+            exec ("self.all_line[%d].set_data([data[%d][0],data[%d][1]])"%(i+9,i,i))
             
     def update_wind(self):
         coo_wind=[0,-2]

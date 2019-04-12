@@ -118,7 +118,7 @@ def keeping_in_target_area(position,distance_st,target,keeping_state,true_wind,b
         # print('!!!!!!!!!!')
         keeping_state=1
         print("state 1")
-        desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.8
+        desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.9
         
         desired_angle=regular_angle(desired_angle)
     elif del_x**2/0.81+del_y**2/0.25>1 :
@@ -134,7 +134,8 @@ def keeping_in_target_area(position,distance_st,target,keeping_state,true_wind,b
         print("state 2")
     
     if keeping_state==3 :
-        desired_angle=sign(math.sin(true_wind[1]-position[3]))*0.95+true_wind[1]+math.pi
+        desired_angle=sign(math.sin(true_wind[1]-boat_to_target_angle))*0.95+true_wind[1]+math.pi
+        
         print("state 3")
     desired_angle=regular_angle(desired_angle)
     return desired_angle,keeping_state

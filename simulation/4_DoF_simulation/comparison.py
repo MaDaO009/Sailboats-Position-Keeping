@@ -7,7 +7,7 @@ import math
 import threading
 from sailboat_4_DoF import sailboat
 import random
-import four_DOF_simulator
+import four_DOF_simulator_v2
 import boat_profile
 import xlwt
 import xlrd
@@ -20,44 +20,40 @@ class visualazation():
         self.init_subwindows_data()
         self.init_boat_data()
         self.init_window_data()
-        
+        self.init_second_boat()
+
     def initialize_parameters(self):
-        self.counter=0
-        self.my_boat=sailboat(location=[2,3])
-        self.boat_generator=boat_profile.boat_profile(boat_size=0.15)
-        self.all_line=[]
+        self.counter=200
+        self.sychronize_interval=50
         self.workbook = xlrd.open_workbook('201901212145.xlsx')
         self.table=self.workbook.sheets()[0]
-        self.x=self.table.cell(3,3).value
-        self.y=self.table.cell(3,4).value
-        self.location=[self.x,self.y]
-        self.heading_angle=self.table.cell(3,6).value
-        self.desired_angle=self.table.cell(3,5).value
-        self.rudder=self.table.cell(3,1).value
-        self.sail=self.table.cell(3,2).value
+
+        self.my_boat=sailboat(location=[2,3])
+        self.boat_generator=boat_profile.boat_profile(boat_size=0.15)
         
-        self.v=0
-        self.u=0
-        self.w=0
-        self.target=[3,5.5]
+        self.all_line=[]
+        self.heading_angle=self.my_boat.heading_angle+0
+        self.desired_angle=self.my_boat.desired_angle+0
+        self.rudder=self.my_boat.rudder+0
+        self.sail=self.my_boat.sail+0
+        
+        self.v=self.my_boat.velocity[0]+0
+        self.u=self.my_boat.velocity[1]+0
+        self.w=self.my_boat.angular_velocity+0
+        self.target=self.my_boat.target
         self.boat_size=0.15
-        self.dT=1.4
-        self.dM=2.8
-        self.true_wind=[0,-5]
-        self.display_rate=1
-
         self.sample_time=0.01
-
-        self.velocity=[0,0]
-        self.app_wind=[0,0]
-        self.angular_velocity,self.roll_angular_velocity=0,0
+        self.velocity,self.heading_angle=self.my_boat.velocity+[0,0],self.my_boat.heading_angle+0
+        self.app_wind=self.my_boat.app_wind+[0,0]
+        self.angular_velocity,self.roll_angular_velocity=self.my_boat.angular_velocity+0,self.my_boat.roll_angular_velocity+0
+        self.x,self.y=self.my_boat.location[0]+0,self.my_boat.location[1]+0
         
-        
-        self.roll=0
-        self.true_wind=[3,-math.pi/2]
-        
-        
-        
+        self.roll=self.my_boat.roll+0
+        # self.true_wind=[self.my_boat.true_wind[0],math.pi/2-self.my_boat.true_wind[1]]
+        self.true_wind=self.my_boat.true_wind+[0,0]
+        # print('bbbbb',self.my_boat.true_wind[1])
+        self.true_wind[1]=math.pi/2-self.true_wind[1]
+        # print('aaaaaa',self.my_boat.true_wind[1])
     
     def create_window(self):
         self.figure = plt.figure()
@@ -136,6 +132,15 @@ class visualazation():
                                     [1.5*math.sin(self.heading_angle)*self.boat_size,1.5*math.sin(self.heading_angle)+math.sin(self.desired_angle)*self.boat_size],color='gray')
         self.all_line.append(self.line_disired_angle)
 
+    def init_second_boat(self):
+        data=self.boat_generator.get_lines(0,0,1,1,0,0)
+        
+        for i in range(3):
+            exec ("self.line%s,=self.main_window.plot(data[%d][0],data[%d][0],color='black')"%(i+4,i,i))
+            exec ("self.all_line.append(self.line%s)"%(i+4))
+        
+        
+
     def init_window_data(self):
         self.window_y_data=np.array([0,2.5,2.5,2.5,5,5])
         self.window_x_data=np.array([5.5,5.5,8,5.5,5.5,8])
@@ -155,7 +160,7 @@ class visualazation():
         
         self.wind_y_data=np.array([3.75,5])
         self.wind_x_data=np.array([6.75,6.75])
-        self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='black')
+        self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='b')
         
         self.all_line.append(self.line_window)
         self.all_line.append(self.line_boundary)
@@ -166,28 +171,56 @@ class visualazation():
         return self.all_line
 
     def to_next_moment(self):
-        self.rudder,self.target_sail=self.my_boat.rudder+0,self.my_boat.sail+0
-        # print('aaaaaaaaaaaaaaaaasail',self.sail)
         
+        self.rudder=self.table.cell(self.counter+4,1).value
+        self.target_sail=self.table.cell(self.counter+4,2).value
+        self.counter+=1
         
         for i in range(0,10):
+            if self.y>9:
+                self.true_wind[0]=9
+            elif self.y>8:
+                self.true_wind[0]=self.y*6.5-49.5
+            elif self.y>2:
+                self.true_wind[0]=0.0037*self.y**3+0.039*self.y**2-0.32*self.y+1.738
+            else:
+                self.true_wind[0]=0.5
             self.moving_sail()
-            self.true_sail=self.get_true_sail()
-            # self.true_wind=
-            a,b,self.app_wind[1]=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
+            self.true_sail=self.get_true_sail(self.sail)
+            a,b,self.app_wind[1]=four_DOF_simulator_v2.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind,self.counter)
             [self.velocity[0],self.velocity[1],self.roll_angular_velocity,self.angular_velocity]=-a
-            # print(self.velocity,'v')
+            
             self.velocity[0]*=-1
+            # print(self.velocity,'v')
+
+            
             [self.y,self.x,self.roll,self.heading_angle]=b
             self.roll=-self.roll
             self.heading_angle=math.pi/2-self.heading_angle
             
-            # print(self.roll)
-        # print("aaaaaa")
-        # print(wind_effect_on_v,g_s*math.sin(self.sail))
+        
         self.my_boat.updata_pos(self.x,self.y,self.heading_angle,self.roll)
         #+random.gauss(0,0.01)
-        self.my_boat.update_state()
+        # self.my_boat.update_state()
+
+    def update_second_boat(self):
+        x=self.table.cell(self.counter+4,3).value
+        y=self.table.cell(self.counter+4,4).value
+        heading_angle=self.table.cell(self.counter+4,6).value
+        rudder=self.table.cell(self.counter+4,1).value
+        sail=self.table.cell(self.counter+4,2).value
+        true_sail=self.get_true_sail(sail)
+        data=self.boat_generator.get_lines(heading_angle,0,x,y,rudder,true_sail)
+        if self.counter%self.sychronize_interval==0:
+            self.x=x
+            self.y=y
+            self.heading_angle=heading_angle
+            
+
+            
+        for i in range(3):
+            exec ("self.all_line[%d].set_data([data[%d][0],data[%d][1]])"%(i+14,i,i))
+
 
     def moving_sail(self):
         try:
@@ -198,8 +231,8 @@ class visualazation():
             print('an exception occurred when moving sail')
         self.last_sail=self.sail
    
-    def get_true_sail(self):
-        sail=self.sail
+    def get_true_sail(self,input_sail):
+        sail=input_sail
         
         if math.sin(self.app_wind[1])<0:
             sail=-sail
@@ -223,6 +256,8 @@ class visualazation():
         self.update_data()
         
         self.update_line_boat()
+
+        self.update_second_boat()
         
         self.update_window_boat()
         
@@ -234,10 +269,17 @@ class visualazation():
     def update_data(self):
         self.desired_angle=self.my_boat.desired_angle
         
-        self.w=self.my_boat.angular_velocity
-        self.v=self.my_boat.velocity[0]
+        self.w=self.angular_velocity
+        self.v=self.velocity[0]
         
-        self.u=self.my_boat.velocity[1]
+        self.u=self.velocity[1]
+        if self.counter%self.sychronize_interval==0:
+            self.v=self.table.cell(self.counter+4,11).value
+            self.u=self.table.cell(self.counter+4,12).value
+            self.velocity=[self.v,self.u]
+            self.w=self.table.cell(self.counter+4,13).value
+            self.angular_velocity=self.w
+            print(self.velocity,self.angular_velocity)
         # print(self.v,u)
         self.location_x_data=np.delete(self.location_x_data,0,0)
         self.location_x_data=np.append(self.location_x_data,[self.x],0)
@@ -298,10 +340,10 @@ class visualazation():
         
     def plot(self):
         ani = animation.FuncAnimation(
-            self.figure, self.animate1, init_func=self.init1, interval=60, blit=True, save_count=50)
+            self.figure, self.animate1, init_func=self.init1, interval=50, blit=True, save_count=50)
     
         plt.show()
         plt.close()
-    
-my_plot=visualazation()
-my_plot.plot()
+if __name__ == "__main__":  
+    my_plot=visualazation()
+    my_plot.plot()
