@@ -20,7 +20,7 @@ def to_next_moment(sample_time,u,v,p,r,x,y,roll,yaw,sail,rudder,true_wind):  ##t
     
     velocity,angular_velocity,v_and_angular_v,location_and_orientation=get_all_parameters(u,v,p,r,x,y,roll,yaw)
     app_wind_speed,angle_app_wind,wind_angle_of_attack=get_app_wind(true_wind,velocity,angular_velocity,roll,yaw,u,v,r,p,sail)
-    print(app_wind_speed,angle_app_wind)
+    # print(app_wind_speed,angle_app_wind)
     sail_torque=get_sail_torque(sail,wind_angle_of_attack,app_wind_speed,angle_app_wind)
     # print(sail_torque)
     rudder_torque=get_rudder_torque(rudder,u,v,r,p)
@@ -69,7 +69,7 @@ def get_app_wind(true_wind,velocity,angular_velocity,roll,yaw,u,v,r,p,sail):
     
     # transform_matrix=R1.dot(R2)
     # true_wind_b_frame=true_wind_n_frame.dot(transform_matrix)
-    print(yaw)
+    # print(yaw)
     ys=0.1
     app_wind_on_u=true_wind[0]*math.cos(true_wind[1]-yaw)-u+r*(0.15*math.cos(sail)-0.05)
     app_wind_on_v=true_wind[0]*math.sin(true_wind[1]-yaw)*math.cos(roll)-v-r*0.15*math.sin(sail)+p*0.4

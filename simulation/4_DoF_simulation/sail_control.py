@@ -5,6 +5,7 @@ class sailcontroller():
         self.pid_adjustment=PID(P=p_term,I=i_term,D=d_term)
         self.sail=0
         self.maxsail=math.pi/12*5
+        
         self.Dv_constant=Dv_constant
         self.ideal_angle=ideal_angle
     
@@ -24,7 +25,7 @@ class sailcontroller():
         if keeping_state==0:
             target_v=distance_st*self.Dv_constant
         elif keeping_state==1:
-            if math.cos(true_wind[1]-positiom[3])>math.cos(math.pi-self.ideal_angle):
+            if math.cos(true_wind[1]-position[3])>math.cos(math.pi-self.ideal_angle):
                 target_v=0.2+0.6*math.acos(math.cos(true_wind[1]-position[3])-math.cos(math.pi-self.ideal_angle))
             else:
                 target_v=0.2
@@ -34,12 +35,16 @@ class sailcontroller():
 
 
     def get_optimal_sail(self,heading_angle,app_wind):
-        angle_diff=self.get_abs_angle_difference(heading_angle,app_wind[1])
-        if math.cos(heading_angle-app_wind[1])<=math.cos(3*math.pi/4):
-            optimal_sail=0.3+(math.pi/4-angle_diff)*0.3
-            
+        # angle_diff=self.get_abs_angle_difference(heading_angle,app_wind[1]+math.pi)
+        # print('angle_diff',angle_diff,'heading',heading_angle,app_wind[1])
+        if math.cos(app_wind[1]) <= math.cos(3*math.pi/4):
+            optimal_sail=0.3+(-3*math.pi/4+abs(app_wind[1]))*0.3
+            # print(optimal_sail,'3')
         else:
-            optimal_sail=0.3+(angle_diff-math.pi/4)*1.2
+            optimal_sail=0.3+(3/4*math.pi-abs(app_wind[1]))*1.2
+            # print(optimal_sail,'4')
+        if optimal_sail>self.maxsail:
+            optimal_sail=self.maxsail
         return optimal_sail
 
     def get_app_wind(self,true_wind,heading_angle,velocity):
@@ -76,11 +81,13 @@ class sailcontroller():
                 final_sail=maxsail
             elif final_sail<optimal_sail:
                 final_sail=optimal_sail
+            # print(optimal_sail,'2')
         else:
             final_sail=optimal_sail-0.35-offset
             
             if final_sail>optimal_sail:
                 final_sail=optimal_sail
+                # print(optimal_sail)
             elif final_sail<0.4:
                 final_sail=0.4
 

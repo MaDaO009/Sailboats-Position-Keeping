@@ -177,9 +177,11 @@ class visualazation():
             # print(self.roll)
         # print("aaaaaa")
         # print(wind_effect_on_v,g_s*math.sin(self.sail))
-        self.rudder,self.target_sail,self.desired_angle=self.my_boat.update_state(self.true_wind,[self.x,self.y,self.roll,self.heading_angle])
+        self.rudder,self.target_sail,self.desired_angle=self.my_boat.update_state([self.true_wind[0],
+        math.pi/2-self.true_wind[1]],[self.x,self.y,self.roll,self.heading_angle])
         #+random.gauss(0,0.01)
-        print(self.target_sail,self.sail,self.true_sail,self.app_wind)
+        # print(self.target_sail,self.sail,self.true_sail,self.app_wind)
+        print(self.heading_angle,self.my_boat.tacking_angle,self.my_boat.desired_angle)
         
     def moving_sail(self):
         
@@ -194,12 +196,13 @@ class visualazation():
     def get_true_sail(self):
         sail=self.sail
         
-        if math.sin(self.app_wind[1])<0:
+        if math.sin(self.app_wind[1])>0:
             sail=-sail
+            
             # print('!!!!',self.sail,self.my_boat.if_force_turning)
             
         if math.cos(self.app_wind[1])>math.cos(sail) or abs(self.app_wind[1]-sail)<0.1:
-            sail=self.app_wind[1]
+            sail=-self.app_wind[1]
             # print('!!!\n!!!!!!',self.sail,self.my_boat.if_force_turning)
         # print(self.app_wind[1],sail)
         

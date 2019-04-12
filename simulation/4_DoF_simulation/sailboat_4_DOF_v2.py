@@ -80,7 +80,7 @@ class sailboat:
         adoptive_angle=self.compare_heading_and_course(course_angle)
 
         self.rudder=self.rudder_controller.generate_command(self.desired_angle,adoptive_angle,self.keeping_state,
-        self.velocity,self.tacking_angle,self.force_turning_angle,boat_to_target_angle)    
+        self.velocity,self.tacking_angle,self.force_turning_angle,boat_to_target_angle,self.true_wind)    
         
         self.sail,self.target_v=self.sail_controller.generate_command(self.velocity,self.position,self.target,
         self.true_wind,self.keeping_state,self.desired_angle,self.tacking_angle,self.force_turning_angle)

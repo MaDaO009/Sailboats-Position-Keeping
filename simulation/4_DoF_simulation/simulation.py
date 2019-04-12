@@ -37,7 +37,7 @@ class visualazation():
         self.boat_size=0.15
         self.sample_time=0.01
         self.velocity,self.heading_angle=self.my_boat.velocity+[0,0],self.my_boat.heading_angle+0
-        self.app_wind=self.my_boat.app_wind+[0,0]
+        self.app_wind=self.my_boat.app_wind
         self.angular_velocity,self.roll_angular_velocity=self.my_boat.angular_velocity+0,self.my_boat.roll_angular_velocity+0
         self.x,self.y=self.my_boat.location[0]+0,self.my_boat.location[1]+0
         
@@ -162,7 +162,7 @@ class visualazation():
         for i in range(0,10):
             self.moving_sail()
             self.true_sail=self.get_true_sail()
-            a,b,self.app_wind[1]=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
+            a,b,self.app_wind=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
             [self.velocity[0],self.velocity[1],self.roll_angular_velocity,self.angular_velocity]=-a
             
             self.velocity[0]*=-1

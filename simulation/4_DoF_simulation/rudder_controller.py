@@ -9,7 +9,7 @@ class rudder_controller():
         self.command_generator.setBoundary(self.maxrudder,-self.maxrudder)
 
     def generate_command(self,desired_angle,current_angle,keeping_state,velocity,tacking_angle,
-    force_turning_angle,boat_to_target_angle):
+    force_turning_angle,boat_to_target_angle,true_wind):
         
         
         if keeping_state!=2 :  
