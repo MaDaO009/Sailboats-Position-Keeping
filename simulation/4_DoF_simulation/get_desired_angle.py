@@ -7,7 +7,7 @@ start_tacking_time,counter,keeping_state,force_turning_angle):
     boat_to_target_angle=math.atan2(target[1]-position[1],target[0]-position[0])
     distance_st=math.sqrt(pow(target[1]-position[1],2)+pow(target[0]-position[0],2))
     
-    force_turning_angle=boundary_detector(position,tacking_angle,true_wind,force_turning_angle)
+    force_turning_angle=boundary_detector(position,tacking_angle,true_wind,force_turning_angle,boat_to_target_angle)
     
     
 
@@ -19,29 +19,31 @@ start_tacking_time,counter,keeping_state,force_turning_angle):
         true_wind,boat_to_target_angle)
     # print('last1',last_desired_angle,desired_angle)
     tacking_angle,tacking_sign,start_tacking_time,desired_angle=tacking_detector(velocity[0],position[3],desired_angle,
-    last_desired_angle,tacking_angle,tacking_sign,true_wind,start_tacking_time,counter,force_turning_angle)
-    # print('last3',last_desired_angle,desired_angle)
+    last_desired_angle,tacking_angle,tacking_sign,true_wind,start_tacking_time,counter,force_turning_angle,
+    boat_to_target_angle)
+    # print('last3',tacking_angle,force_turning_angle)
+    if tacking_angle!=None:
+        
+        force_turning_angle=None
 
-    if force_turning_angle!=None:
+    elif force_turning_angle!=None:
         tacking_angle=None
         
 
-    elif tacking_angle!=None:
-        
-        force_turning_angle=None
+    
     
     return [desired_angle,keeping_state,force_turning_angle,tacking_angle,tacking_sign,start_tacking_time]
 
 
-def boundary_detector(position,tacking_angle,true_wind,force_turning_angle):
+def boundary_detector(position,tacking_angle,true_wind,force_turning_angle,boat_to_target_angle):
     if tacking_angle== None:
         if force_turning_angle == None:
             x=position[0]+math.cos(position[3]*1.3)
             y=position[1]+math.sin(position[3]*1.3)
             if x>2 and x<6 and y>1 and y<7.5:
                 force_turning_angle=None
-            else:
-                if x<2:
+            elif sign(math.sin(position[3]-true_wind[1])) !=sign(math.sin(boat_to_target_angle-true_wind[1])):
+                if x<0.5:
                     if y<7:
                         force_turning_angle=0.6
                     else:
@@ -55,22 +57,24 @@ def boundary_detector(position,tacking_angle,true_wind,force_turning_angle):
                     force_turning_angle=None
         else:
             if sign(math.sin(position[3]-true_wind[1])) ==sign(math.sin(force_turning_angle-true_wind[1])):
-                force_turning_angle=None
+                if abs (math.sin(position[3]-true_wind[1]))>0.5:
+                    force_turning_angle=None
         return force_turning_angle
     else:
         return None
         
 
 def tacking_detector(v,heading_angle,desired_angle,last_desired_angle,tacking_angle,tacking_sign,true_wind,
-start_tacking_time,counter,force_turning_angle):
+start_tacking_time,counter,force_turning_angle,boat_to_target_angle):
     if tacking_angle ==None:
         if math.cos(heading_angle-true_wind[1])+math.cos(desired_angle-true_wind[1])<0:
             # print(next_desired_angle,heading_angle)
             # print(' tacking!')
             if sign(math.sin(desired_angle-true_wind[1])) != sign(math.sin(heading_angle-true_wind[1])) and force_turning_angle==None:
                 ###Yes, it's a tacking!
-                print('Yes, it is a tacking!')
-                if v>0.6:
+                # print('Yes, it is a tacking!')
+                if v>0.55 and (math.cos(true_wind[1]-boat_to_target_angle)>-0.6 or force_turning_angle !=None):
+                    # print('!!!!!!!!!!!')
                     start_tacking_time=counter
                     tacking_sign=sign(math.sin(heading_angle-true_wind[1]))
                     tacking_angle=desired_angle
@@ -99,7 +103,7 @@ def go_to_target_area(boat_to_target_angle,distance_st,dM,dT,true_wind):
             else:
                 next_desired_angle=math.pi/2+boat_to_target_angle
 
-    if math.cos(true_wind[1]-next_desired_angle)<-0.71: ##exceed dead angle
+    if math.cos(true_wind[1]-next_desired_angle)<-0.6: ##exceed dead angle
         next_desired_angle=sign(math.sin(true_wind[1]-next_desired_angle))*0.98+true_wind[1]+math.pi
     next_desired_angle=regular_angle(next_desired_angle)
     return next_desired_angle
@@ -107,21 +111,31 @@ def go_to_target_area(boat_to_target_angle,distance_st,dM,dT,true_wind):
 def keeping_in_target_area(position,distance_st,target,keeping_state,true_wind,boat_to_target_angle):
     del_x=distance_st*math.sin(true_wind[1]-boat_to_target_angle)
     del_y=distance_st*math.cos(true_wind[1]-boat_to_target_angle)
-    if (del_x**2/3.24+del_y**2<1 and keeping_state!=2) or keeping_state==0:
+    if keeping_state==0:
+        keeping_state=3
+        
+    if del_x**2/0.81+del_y**2/0.25<1 and keeping_state!=2:
+        # print('!!!!!!!!!!')
         keeping_state=1
-        desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.9
+        print("state 1")
+        desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.8
+        
         desired_angle=regular_angle(desired_angle)
-    elif del_x**2/3.24+del_y**2>1 :
+    elif del_x**2/0.81+del_y**2/0.25>1 :
         if  keeping_state==1:
             keeping_state=2
+        
        
     if keeping_state==2:
-        if sign(math.sin(position[3]-true_wind[1])) != sign(math.sin(boat_to_target_angle-true_wind[1])):
+        if sign(math.sin(position[3]-true_wind[1])) == sign(math.sin(boat_to_target_angle-true_wind[1])):
             if abs(math.sin(position[3]-true_wind[1]))>0.8:
                 keeping_state=3
-    if keeping_state==3:
-        desired_angle=sign(math.sin(true_wind[1]-position[3]))*0.95+true_wind[1]+math.pi
+        desired_angle=0
+        print("state 2")
     
+    if keeping_state==3 :
+        desired_angle=sign(math.sin(true_wind[1]-position[3]))*0.95+true_wind[1]+math.pi
+        print("state 3")
     desired_angle=regular_angle(desired_angle)
     return desired_angle,keeping_state
         

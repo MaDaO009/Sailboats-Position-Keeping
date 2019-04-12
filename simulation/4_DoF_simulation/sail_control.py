@@ -31,6 +31,8 @@ class sailcontroller():
                 target_v=0.2
         elif keeping_state==2:
             target_v=0
+        else:
+            target_v=0.3 
         return target_v
 
 
@@ -73,15 +75,16 @@ class sailcontroller():
     
     def get_final_sail(self,target_v,optimal_sail,v,heading_angle,app_wind,tacking_angle):
         ### get maxsail (considering the influence of wind)
-        maxsail=min(self.maxsail,self.get_abs_angle_difference(heading_angle-math.pi,app_wind[1]))
+        maxsail=min(self.maxsail,abs(app_wind[1]))
         offset=-self.pid_adjustment.update(v,target_v)
         if maxsail-optimal_sail>0.4:
             final_sail=(maxsail+optimal_sail)/2+offset
+            # print('!!!!!!!!!',(maxsail+optimal_sail)/2)
             if final_sail>maxsail:
                 final_sail=maxsail
             elif final_sail<optimal_sail:
                 final_sail=optimal_sail
-            # print(optimal_sail,'2')
+            
         else:
             final_sail=optimal_sail-0.35-offset
             
@@ -90,7 +93,7 @@ class sailcontroller():
                 # print(optimal_sail)
             elif final_sail<0.4:
                 final_sail=0.4
-
+        # print(optimal_sail,target_v,offset,final_sail,'22222222')
         if tacking_angle != None :
             final_sail=self.maxsail
         return final_sail   

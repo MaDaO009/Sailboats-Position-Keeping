@@ -21,16 +21,15 @@ class visualazation():
         
     def initialize_parameters(self):
         self.start_time=time.time()
-        self.my_boat=sailboat(position=[2,3,0,0])
+        self.my_boat=sailboat(position=[2,4,0,0])
         self.boat_generator=boat_profile.boat_profile(boat_size=0.15)
         
         self.all_line=[]
-        self.heading_angle=0
+        
         self.desired_angle=0
         self.rudder=0
         self.sail=0
-        self.x=2
-        self.y=3
+        self.x,self.y,self.roll,self.heading_angle=self.my_boat.position
         self.v=0
         self.u=0
         self.w=0
@@ -41,7 +40,7 @@ class visualazation():
         self.app_wind=[0,0]
         self.angular_velocity,self.roll_angular_velocity=0,0
         self.last_sail=0
-        self.roll=0
+        
         # self.true_wind=[self.my_boat.true_wind[0],math.pi/2-self.my_boat.true_wind[1]]
         self.true_wind=self.my_boat.true_wind
         # print('bbbbb',self.my_boat.true_wind[1])
@@ -59,6 +58,16 @@ class visualazation():
         x_t,y_t = np.cos(theta)*self.my_boat.dT+np.linspace(self.my_boat.target[0],self.my_boat.target[0],60), np.sin(theta)*self.my_boat.dT+np.linspace(self.my_boat.target[1],self.my_boat.target[1],60)
         self.main_window.plot(x_t, y_t, color='red', linewidth=1.0)
         
+        x_e=np.hstack((np.linspace(-0.9,0.9,30),np.linspace(0.9,-0.9,30)))
+        y_e=np.linspace(0,0,60)
+        for i in range (0,30):
+            y_e[i]=math.sqrt((1-x_e[i]**2/0.81)*0.25)
+            y_e[59-i]=-y_e[i]
+        x_e+=np.linspace(self.my_boat.target[0],self.my_boat.target[0],60)
+        y_e+=np.linspace(self.my_boat.target[1],self.my_boat.target[1],60)
+        self.main_window.plot(x_e, y_e, color='yellow', linewidth=1.0)
+
+
         x_p,y_p = np.cos(theta)*self.my_boat.dM+np.linspace(self.my_boat.target[0],self.my_boat.target[0],60), np.sin(theta)*self.my_boat.dM+np.linspace(self.my_boat.target[1],self.my_boat.target[1],60)
         self.main_window.plot(x_p, y_p, color='orange', linewidth=1.0)
 
@@ -161,12 +170,14 @@ class visualazation():
         
         for i in range(0,10):
             self.moving_sail()
-    
+            last_v=self.velocity[0]
             self.true_sail=self.get_true_sail()
             a,b,self.app_wind=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
             [self.velocity[0],self.velocity[1],self.roll_angular_velocity,self.angular_velocity]=-a
+            
             self.app_wind[1]=-self.app_wind[1]
             self.velocity[0]*=-1
+            acc=(self.velocity[0]-last_v)*100
             # print(self.velocity,'v')
 
             
@@ -181,7 +192,7 @@ class visualazation():
         math.pi/2-self.true_wind[1]],[self.x,self.y,self.roll,self.heading_angle])
         #+random.gauss(0,0.01)
         # print(self.target_sail,self.sail,self.true_sail,self.app_wind)
-        print(self.heading_angle,self.my_boat.tacking_angle,self.my_boat.desired_angle)
+        print(self.target_sail,self.sail,acc,self.my_boat.tacking_angle,self.my_boat.force_turning_angle)
         
     def moving_sail(self):
         

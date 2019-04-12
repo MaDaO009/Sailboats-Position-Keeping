@@ -75,6 +75,8 @@ class sailboat:
         self.position,self.target,self.true_wind,self.dT,self.dM,self.desired_angle,self.tacking_angle,self.tacking_sign,
         self.start_tacking_time,self.time,self.keeping_state,self.force_turning_angle)
 
+        # self.desired_angle=0.6
+
         if self.time>self.runtimes-200:  ### it's time to go home
             self.desired_angle=-math.pi/2
 

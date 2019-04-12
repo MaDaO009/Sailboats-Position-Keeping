@@ -3,7 +3,7 @@ import math
 
 class rudder_controller():
     def __init__(self):
-        self.command_generator=PID()
+        self.command_generator=PID(P=0.5,I=0.2,D=0.5)
         self.rudder=0
         self.maxrudder=math.pi/4  ##max angle of rudder
         self.command_generator.setBoundary(self.maxrudder,-self.maxrudder)
@@ -24,17 +24,17 @@ class rudder_controller():
                 
                 self.rudder=-self.command_generator.update(current_angle,desired_angle)
                 current_angle=self.regular_angle(current_angle)
-                 
+                # print(self.rudder,'1')
             else:
                 self.rudder=self.maxrudder*self.sign(math.sin(current_angle-desired_angle))
 
             if tacking_angle != None:
                 self.rudder== self.maxrudder*self.sign(math.sin(tacking_angle-true_wind[1]))
-                
+                # print(self.rudder,'2')
             elif force_turning_angle != None:
                 if self.sign(self.rudder) == self.sign(math.sin(force_turning_angle-true_wind[1])):
                     self.rudder=-self.rudder
-
+                # print(self.rudder,'3')
         else:
             self.rudder=-self.maxrudder*self.sign(math.sin(boat_to_target_angle-true_wind[1]))
 
