@@ -201,8 +201,8 @@ void sendmess(){
 
   Serial.print(heading_angle);  Serial.print(",");
   Serial.print(roll);
-  Serial.print(","); Serial.println(current_mA); 
-  Serial.print(","); Serial.print(busvoltage); 
+  Serial.print(","); Serial.print(current_mA); 
+  Serial.print(","); Serial.println(busvoltage); 
 //  Serial.print(","); Serial.print(shuntvoltage);
 //  Serial.print(","); Serial.print(loadvoltage);
   

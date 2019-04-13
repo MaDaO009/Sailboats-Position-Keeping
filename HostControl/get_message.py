@@ -27,8 +27,8 @@ def run(ser):
                 a=mess[0]
                 a=re.sub('\D','',a)
                 roll=int(mess[1])/57.32
-                voltage=mess[1]
                 current=mess[2]
+                voltage=mess[3]
                 current=re.sub('\D','',current)
                 current=float(current)/100
                 voltage=float(voltage)
@@ -42,14 +42,16 @@ def run(ser):
                     b=b
             
                 heading_angle=b/57.32
+                if heading_angle>math.pi:
+                    heading_angle-=math.pi*2
+                
+                gl.set_value('heading_angle',heading_angle)
+                gl.set_value('current',current)
+                gl.set_value('voltage',voltage)
+                gl.set_value('roll',roll)
+
  
-        if heading_angle>math.pi:
-            heading_angle-=math.pi*2
         
-        gl.set_value('heading_angle',heading_angle)
-        gl.set_value('current',current)
-        gl.set_value('voltage',voltage)
-        gl.set_value('roll',roll)
 
         frequency=gl.get_value('frequency')
         ser.flushInput()

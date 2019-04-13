@@ -96,10 +96,12 @@ def run(ser):
         gl.set_value('u',u)
         gl.set_value('p',p)
         gl.set_value('w',w)
-        
+        print(rudder,sail)
         # print(u,v,w)
-        # gl.set_value('rudder',rudder) # PWM for Motor1
-        # gl.set_value('sail',sail) # PWM for Motor2
+        if gl.get_value('keyboard_flag')==False:
+            gl.set_value('rudder',rudder) 
+            gl.set_value('sail',sail) 
+            print(rudder,sail,'2')
         gl.set_value('desired_angle',desired_angle)
         gl.set_value('keeping_state',keeping_state)
         time.sleep(1/frequency)

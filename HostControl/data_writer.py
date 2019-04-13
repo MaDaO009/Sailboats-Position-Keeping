@@ -14,7 +14,7 @@ import globalvar as gl
 
 
 
-def sensor():
+def run():
     global heading_angle
     global rudder
     global sail
@@ -51,7 +51,7 @@ def sensor():
                 DataPoints.append([timevalue, ruddervalue, sailvalue, gl.get_value('x'),gl.get_value('y'),
                 roll,headingvalue,gl.get_value('desired_angle'), 0,gl.get_value('v'),
                 gl.get_value('u'),gl.get_value('p'),gl.get_value('w'),currentvalue, voltagevalue,powervalue,
-                gl.get_value('keeping_state'),gl.get_value('tacking_angle'),roll]) # Updating DataPoints Array
+                gl.get_value('keeping_state'),gl.get_value('tacking_angle')]) # Updating DataPoints Array
                 if sensor_times==0:
                     print('current:',currentvalue,'voltage',voltagevalue,'heading',headingvalue)
             except DeviceRangeError:

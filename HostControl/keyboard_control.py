@@ -22,29 +22,35 @@ def main():
             break
         last_rudder=rudder
         last_sail=sail
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.erudderit()
             elif event.type == pygame.KEYDOWN: #键被按下
-                
-                if event.key == pygame.K_LEFT:
-                    move_rudder = -0.15
-                    rudder_type='down'
-                elif event.key == pygame.K_RIGHT:
-                    move_rudder = 0.15
-                    rudder_type='down'
+                if event.key == pygame.K_g:
+                    gl.set_value('keyboard_flag',True)
+                if event.key == pygame.K_s:
+                    gl.set_value('keyboard_flag',False)
+                keyboard_flag=gl.get_value('keyboard_flag')
+                if keyboard_flag:
+                    if event.key == pygame.K_LEFT:
+                        move_rudder = -0.15
+                        rudder_type='down'
+                    elif event.key == pygame.K_RIGHT:
+                        move_rudder = 0.15
+                        rudder_type='down'
                 # else:
                 #     move_rudder=sign(rudder-320)*15
                     
-                if event.key == pygame.K_UP:
-                    sail_type='down'
-                    move_sail = 0.1
-                elif event.key == pygame.K_DOWN:
-                    sail_type='down'
-                    move_sail = -0.1
+                    if event.key == pygame.K_UP:
+                        sail_type='down'
+                        move_sail = 0.1
+                    elif event.key == pygame.K_DOWN:
+                        sail_type='down'
+                        move_sail = -0.1
                 # else:
                 #     move_sail=-sign(y)
-            elif event.type == pygame.KEYUP:
+            elif event.type == pygame.KEYUP and keyboard_flag:
                 
                 if event.key==pygame.K_LEFT or event.key==pygame.K_RIGHT:
                     move_rudder=-sign(rudder)*0.15
@@ -74,10 +80,11 @@ def main():
             sail=1.3
         elif sail<0:
             sail=0
-        print(rudder,sail)
+        # print(rudder,sail)
         # pygame.display.update()
-        gl.set_value('rudder',rudder)
-        gl.set_value('sail',sail)
+        if gl.get_value('keyboard_flag'):
+            gl.set_value('rudder',rudder)
+            gl.set_value('sail',sail)
         time.sleep(0.1)
 
 def sign(x):

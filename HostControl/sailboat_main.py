@@ -15,7 +15,7 @@ import globalvar as gl
 import threading
 import controller_4_DoF
 import get_message
-import sensor
+import data_writer
 import database
 # import plot
 import serial
@@ -43,13 +43,14 @@ if __name__ == "__main__":
     gl.set_value('tacking_angle',None)
     gl.set_value('current',0)
     gl.set_value('voltage',0)
+    gl.set_value('keyboard_flag',False)
     # gl.set_value('ser',ser)
     # conn = tcpserver.tcpserver()
 
     
     t1 = threading.Thread(target= controller_4_DoF.run,kwargs={'ser':ser}) # Receiving Commands
     t2 = threading.Thread(target= get_message.run,kwargs={'ser':ser})
-    t3 = threading.Thread(target= sensor.sensor)
+    t3 = threading.Thread(target= data_writer.run)
     # t4 = threading.Thread(target= database.run)
     t5 = threading.Thread(target= keyboard_control.main)
     
