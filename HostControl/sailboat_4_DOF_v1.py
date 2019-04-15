@@ -48,7 +48,7 @@ class sailboat:
         self.true_wind=true_wind       ##[wind speed, direction]
 
         self.rudder_controller=rudder_controller()
-        self.velocity_updator=info_updator()
+        self.velocity_updator=info_updator(list_lens=8)
         self.sail_controller=sailcontroller()
         
 
@@ -79,7 +79,7 @@ class sailboat:
 
         if self.time>self.runtimes-200:  ### it's time to go home
             self.desired_angle=-math.pi/2
-
+        self.position[3]=self.regular_angle(self.position[3])
         adoptive_angle=self.compare_heading_and_course(course_angle)
 
         self.rudder=self.rudder_controller.generate_command(self.desired_angle,adoptive_angle,self.keeping_state,
@@ -87,19 +87,34 @@ class sailboat:
         
         self.sail,self.target_v=self.sail_controller.generate_command(self.velocity,self.position,self.target,
         self.true_wind,self.keeping_state,self.desired_angle,self.tacking_angle,self.force_turning_angle)
-    
-        
+
+        # self.sail=1.3-int(self.time/100)/10
+        # if self.sail<0:
+        #     self.sail=0
+        # self.rudder=-0.78
         
         return self.rudder,self.sail,self.desired_angle
 
     def compare_heading_and_course(self,course_angle):
-        if abs(self.position[3]-course_angle)>0.4:
+        if math.cos(self.position[3]-course_angle)<0.85:
             return self.position[3]
         else:
             return course_angle
 
 
-
+    def get_rudder_and_sail(self):
+        if (self.position[3]<math.pi and self.position[3]>math.pi/2) or self.position[3]<-math.pi/3*2:
+            self.sail=0.8
+            self.rudder=-0.78
+        elif self.position[3]<-0:
+            self.sail=1.3
+            self.rudder=-0.78
+        elif self.position[3]>0.8 and self.position[3]<math.pi/2:
+            self.sail=1.3
+            self.rudder=-0.78
+        else:
+            self.sail=abs(self.app_wind)-0.4
+            
 
     
     

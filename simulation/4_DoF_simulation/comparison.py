@@ -200,6 +200,7 @@ class visualazation():
             
         
         self.my_boat.updata_pos(self.x,self.y,self.heading_angle,self.roll)
+        # print(self.roll)
         #+random.gauss(0,0.01)
         # self.my_boat.update_state()
 

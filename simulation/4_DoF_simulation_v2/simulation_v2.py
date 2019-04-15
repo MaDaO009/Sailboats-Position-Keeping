@@ -181,6 +181,7 @@ class visualazation():
             self.moving_sail()
             last_v=self.velocity[0]
             self.true_sail=self.get_true_sail()
+            # print(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
             a,b,self.app_wind=four_DOF_simulator.to_next_moment(0.01,self.velocity[0],-self.velocity[1],-self.roll_angular_velocity,-self.angular_velocity,self.y,self.x,-self.roll,math.pi/2-self.heading_angle,self.true_sail,self.rudder,self.true_wind)
             [self.velocity[0],self.velocity[1],self.roll_angular_velocity,self.angular_velocity]=-a
             

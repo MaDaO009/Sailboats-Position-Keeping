@@ -28,9 +28,9 @@ class sailcontroller():
                 target_v=0.2
         elif keeping_state==1:
             if math.cos(true_wind[1]-position[3])>math.cos(math.pi-self.ideal_angle):
-                target_v=0.15+0.01*math.asin(math.sin(abs(true_wind[1]-position[3])-(math.pi-self.ideal_angle)))
+                target_v=0.12+0.01*math.asin(math.sin(abs(true_wind[1]-position[3])-(math.pi-self.ideal_angle)))
             else:
-                target_v=0.15
+                target_v=0.12
         elif keeping_state==2:
             target_v=0
         else:
@@ -96,6 +96,9 @@ class sailcontroller():
             elif final_sail<0.4:
                 final_sail=0.4
         # print(optimal_sail,target_v,offset,final_sail,'22222222')
+        if target_v==0:
+            self.sail=0.8
+
         if tacking_angle != None :
             final_sail=self.maxsail
         return final_sail   
