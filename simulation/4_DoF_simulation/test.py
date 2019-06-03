@@ -60,3 +60,6 @@ def update(*args):
 # Construct the animation, using the update function as the animation director.
 anim = animation.FuncAnimation(fig, update, interval=10)
 plt.show()
+
+def a():
+    print('!')

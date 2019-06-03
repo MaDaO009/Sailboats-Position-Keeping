@@ -2,6 +2,7 @@ import four_DOF_simulator
 import globalvar as gl
 import math
 import time
+import random
 
 simulation_frequency=100
 
@@ -87,7 +88,9 @@ def run():
         gl.set_value("p",p)
         gl.set_value("w",w)
         gl.set_value("x",x)
+        gl.set_value('ob_x',x+random.random()*0.03)
         gl.set_value("y",y)
+        gl.set_value('ob_y',y+random.random()*0.03)
         gl.set_value("roll",roll)
         gl.set_value("heading_angle",heading_angle)
         gl.set_value("app_wind",app_wind)

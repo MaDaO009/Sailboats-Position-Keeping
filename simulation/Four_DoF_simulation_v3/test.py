@@ -4,7 +4,7 @@ import pylab as pl
 
 from pykalman import KalmanFilter
 
-
+import random
 
 # specify parameters
 
@@ -49,15 +49,30 @@ states, observations = kf.sample(
     initial_state=initial_state_mean
 
 )
-
-
-
+# print(observations[0])
+observations=np.array([[0,0]])
+for i in range(0,50):
+    # observations=np.delete(observations,0,0)
+    a=i+random.random()
+    
+    observations=np.append(observations,[[i+random.random(),i+random.random()+5]],axis=0)
+observations=np.delete(observations,0,axis=0)
+    # print(observations[0])
+    # # print(observations)
+    # # observations[0].append(i+random.random())
+    # # observations[1].append(i+random.random()+10)
+    # observations[1]=np.append(observations[1],[i+random.random()+15],0)
+print(observations,'!!!!')
 # estimate state with filtering and smoothing
 
 filtered_state_estimates = kf.filter(observations)[0]
 
 smoothed_state_estimates = kf.smooth(observations)[0]
-
+print(smoothed_state_estimates[49])
+# print(observations)
+# print(states)
+# print('!!!!!!!!!!!!!!!!!!!!!!')
+# print(smoothed_state_estimates)
 
 
 # draw estimates

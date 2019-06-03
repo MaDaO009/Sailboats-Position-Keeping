@@ -116,21 +116,23 @@ def keeping_in_target_area(position,velocity,distance_st,target,keeping_state,tr
     if keeping_state==1:
         desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.8
         if velocity[0]>0.3 and sign(math.sin(position[3]-true_wind[1])) != sign(math.sin(boat_to_target_angle-true_wind[1])):
-            keeping_state=2
-        # print('!!!!!!!!!!')
+            if distance_st>0.3:
+                keeping_state=2
+        
     if keeping_state==2:
         
-        desired_angle=true_wind[1]+math.pi
+        desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.3
         desired_angle=regular_angle(desired_angle)
-        if math.cos(position[3]-true_wind[1])>-0.8:
+        if math.cos(position[3]-true_wind[1])>-0.8 and sign(math.sin(position[3]-true_wind[1])) == sign(math.sin(boat_to_target_angle-true_wind[1])):
             keeping_state=1
         
-    if distance_st*math.cos(true_wind[1]-boat_to_target_angle)>0.8*dT:
+    if distance_st*math.cos(true_wind[1]-boat_to_target_angle)>0.8*dT and sign(math.sin(position[3]-true_wind[1])) == sign(math.sin(boat_to_target_angle-true_wind[1])):
         keeping_state=3
         if math.cos(boat_to_target_angle-true_wind[1])<-0.3:
             if sign(math.sin(position[3]-true_wind[1])) == sign(math.sin(boat_to_target_angle-true_wind[1])):
                 keeping_state=1
-
+    if keeping_state==3:
+        desired_angle=boat_to_target_angle
     
     return desired_angle,keeping_state
         

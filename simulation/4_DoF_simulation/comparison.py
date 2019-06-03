@@ -23,9 +23,11 @@ class visualazation():
         self.init_second_boat()
 
     def initialize_parameters(self):
-        self.counter=200
-        self.sychronize_interval=50
-        self.workbook = xlrd.open_workbook('201901212145.xlsx')
+        
+        self.run_times=385
+        self.counter=279
+        self.sychronize_interval=140
+        self.workbook = xlrd.open_workbook('./data/manu01.xlsx')
         self.table=self.workbook.sheets()[0]
 
         self.my_boat=sailboat(location=[2,3])
@@ -99,9 +101,18 @@ class visualazation():
         self.location_x_data = np.linspace(self.my_boat.location[0],self.my_boat.location[0],300)
         self.location_y_data=np.linspace(self.my_boat.location[1],self.my_boat.location[1],300)
         self.trajectory_line, = self.main_window.plot(self.location_x_data,self.location_y_data)
+        
+        self.second_location_x_data = np.linspace(self.table.cell(self.counter+4,3).value,self.table.cell(self.counter+4,3).value,100)
+        self.second_location_y_data=np.linspace(self.table.cell(self.counter+4,4).value,self.table.cell(self.counter+4,4).value,100)
+        self.second_trajectory_line, = self.main_window.plot(self.second_location_x_data,self.second_location_y_data,color="black")
+
         self.v_x_data = np.linspace(0, 5, 60)
         self.v_data=np.linspace(self.v,self.v,60)
+        self.second_v_data=np.linspace(self.table.cell(self.counter+4,11).value,self.table.cell(self.counter+4,11).value,60)
+        
         self.line_forward_velocity, = self.forward_velocity_window.plot(self.v_x_data, self.v_data)
+        self.second_line_forward_velocity, = self.forward_velocity_window.plot(self.v_x_data, self.second_v_data,color='gray')
+
         # x2_data = np.linspace(0, 5, 60)
         self.u_data=np.linspace(self.u,self.u,60)
         self.line_side_velocity, = self.side_velocity_window.plot(self.v_x_data, self.u_data)
@@ -168,6 +179,8 @@ class visualazation():
         
     def init1(self):  # only required for blitting to give a clean slate.
         # print(self.all_line)
+        self.all_line.append(self.second_trajectory_line)
+        self.all_line.append(self.second_line_forward_velocity)
         return self.all_line
 
     def to_next_moment(self):
@@ -216,9 +229,19 @@ class visualazation():
             self.x=x
             self.y=y
             self.heading_angle=heading_angle
+            print(self.table.cell(self.counter+4,9).value)
             
 
+        self.second_location_x_data=np.delete(self.second_location_x_data,0,0)
+        self.second_location_x_data=np.append(self.second_location_x_data,[x],0)
+        self.second_location_y_data=np.delete(self.second_location_y_data,0,0)
+        self.second_location_y_data=np.append(self.second_location_y_data,[y],0)
             
+        self.second_v_data=np.delete(self.second_v_data,0,0)
+        self.second_v_data=np.append(self.second_v_data,[self.table.cell(self.counter+4,9).value],0)
+        
+        self.second_line_forward_velocity.set_ydata(self.second_v_data)
+
         for i in range(3):
             exec ("self.all_line[%d].set_data([data[%d][0],data[%d][1]])"%(i+14,i,i))
 
@@ -248,22 +271,26 @@ class visualazation():
         return sail
 
     def animate1(self,i):
+        
         # self.to_next_moment()
         # self.to_next_moment()
         # self.to_next_moment()
         # self.to_next_moment()
-        self.to_next_moment()
+        if self.counter<self.run_times:
+            # print(self.counter)
+            
+            self.to_next_moment()
         # print(self.my_boat.true_wind)
-        self.update_data()
-        
-        self.update_line_boat()
+            self.update_data()
+            
+            self.update_line_boat()
 
-        self.update_second_boat()
-        
-        self.update_window_boat()
-        
-        self.update_wind()
-        
+            self.update_second_boat()
+            
+            self.update_window_boat()
+            
+            self.update_wind()
+            
         return self.all_line
         # return self.trajectory_line,self.line_forward_velocity,self.line_side_velocity,self.line_heading,self.line1,self.line2,self.line3,self.window_line1,self.window_line2,self.window_line3,self.line_wind,self.line_disired_angle,self.line_boundary,self.line_desired_angle
 
@@ -275,18 +302,20 @@ class visualazation():
         
         self.u=self.velocity[1]
         if self.counter%self.sychronize_interval==0:
-            self.v=self.table.cell(self.counter+4,11).value
-            self.u=self.table.cell(self.counter+4,12).value
+            self.v=self.table.cell(self.counter+4,9).value
+            self.u=self.table.cell(self.counter+4,10).value
             self.velocity=[self.v,self.u]
-            self.w=self.table.cell(self.counter+4,13).value
+            self.w=self.table.cell(self.counter+4,11).value
             self.angular_velocity=self.w
-            print(self.velocity,self.angular_velocity)
+            # print(self.velocity,self.angular_velocity)
         # print(self.v,u)
         self.location_x_data=np.delete(self.location_x_data,0,0)
         self.location_x_data=np.append(self.location_x_data,[self.x],0)
         self.location_y_data=np.delete(self.location_y_data,0,0)
         self.location_y_data=np.append(self.location_y_data,[self.y],0)
         self.trajectory_line.set_data(self.location_x_data,self.location_y_data)
+
+        self.second_trajectory_line.set_data(self.second_location_x_data,self.second_location_y_data)
 
         self.v_data=np.delete(self.v_data,0,0)
         self.v_data=np.append(self.v_data,[self.v],0)

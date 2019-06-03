@@ -21,12 +21,13 @@ import re
 
 def send(ser,rudder,sail,heading_angle):
     rudder_output=75-rudder*70
+    sail=sail*57.33
     # print(rudder_output)
-    sail_output=int(sail*65+20)
+    sail_output=int(-0.0000159*sail**3+0.00043*sail**2+0.837*sail+30)
     # if math.sin(heading_angle-math.pi/2)>0:
     #     sail_output=35+(sail_output-35)*9/8
     command=rudder_output//1*100+sail_output
-    print(sail_output,command)
+    print(command)
     command=(',,'+str(command)+',').encode(encoding='utf-8')
     ser.write(command)
 
@@ -41,6 +42,7 @@ def run(ser):
     gl.set_value('flag',False)
     rudder=0
     sail=0
+    
 
     
     
@@ -58,7 +60,11 @@ def run(ser):
             print('Program stops!')
             
             break
-
+        if gl.get_value('reset')==True:
+            print('aaaaaaaaaaaaaaaa')
+            gl.set_value('reset',False)
+            command=str('/12345r').encode(encoding='utf-8')
+            ser.write(command)
         ## change the frequency of communication when the sailboat arrives at its target area
         # if my_boat.if_keeping==True:
         #     gl.set_value('frequency',20)
@@ -76,7 +82,7 @@ def run(ser):
         rudder,sail,desired_angle=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
         if gl.get_value('keyboard_flag'):
             rudder=gl.get_value('rudder')
-            sail=gl.get_value('sail')
+            # sail=gl.get_value('sail')
         v=my_boat.velocity[0]
         u=my_boat.velocity[1]
         p=my_boat.velocity[2]

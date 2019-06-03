@@ -29,6 +29,9 @@ def main():
             elif event.type == pygame.KEYDOWN: #键被按下
                 if event.key == pygame.K_g:
                     gl.set_value('keyboard_flag',True)
+                if event.key == pygame.K_r:
+                    gl.set_value('reset',True)
+                    print('!!!!!!!')
                 if event.key == pygame.K_s:
                     gl.set_value('keyboard_flag',False)
                 keyboard_flag=gl.get_value('keyboard_flag')

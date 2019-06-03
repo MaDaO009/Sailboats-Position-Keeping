@@ -9,18 +9,21 @@ Main program for station keeping.
 """
 
 
-import time
 import math
-import globalvar as gl
 import threading
-import controller_4_DoF
-import get_message
-import data_writer
-import database
+import time
+
 # import plot
 import serial
-import visualization
+
+import controller_4_DoF
+import data_writer
+import database
+import get_message
+import globalvar as gl
 import keyboard_control
+import visualization
+
 # import matplotlib.pyplot as plt
 
 
@@ -45,6 +48,7 @@ if __name__ == "__main__":
     gl.set_value('voltage',0)
     gl.set_value('keyboard_flag',False)
     gl.set_value('target_v',0.1)
+    gl.set_value('reset',False)
     # gl.set_value('ser',ser)
     # conn = tcpserver.tcpserver()
 

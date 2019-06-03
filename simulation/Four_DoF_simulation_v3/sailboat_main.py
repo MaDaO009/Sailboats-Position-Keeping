@@ -29,6 +29,8 @@ if __name__ == "__main__":
     ser=0
 
     gl.set_value('flag',False) # Stop sign
+    gl.set_value('ob_x',0)
+    gl.set_value('ob_y',0)
      # initial heading angle zero
     gl.set_value('desired_angle',0)
     gl.set_value('sail',0) 
@@ -36,8 +38,8 @@ if __name__ == "__main__":
     gl.set_value('frequency',10)
     gl.set_value('true_wind',[1.5,-math.pi/2])
     gl.set_value('target',[0,0]) 
-    gl.set_value('x',0)
-    gl.set_value('y',0)
+    gl.set_value('x',2.5)
+    gl.set_value('y',3)
     gl.set_value('roll',0)
     gl.set_value('heading_angle',0)
     gl.set_value('keeping_state',1)

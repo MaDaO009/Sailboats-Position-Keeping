@@ -36,8 +36,8 @@ def run(ser):
     #-----------ESC Configuration----------------------
     
     # ser=gl.get_value('ser')
-    gl.set_value('x',0)
-    gl.set_value('y',0)
+    # gl.set_value('x',2)
+    # gl.set_value('y',2)
     gl.set_value('flag',False)
     rudder=0
     sail=0
@@ -67,8 +67,8 @@ def run(ser):
 
         frequency=gl.get_value('frequency')
         ##get information of sailboat
-        x=gl.get_value('x')
-        y=gl.get_value('y')
+        x=gl.get_value('ob_x')
+        y=gl.get_value('ob_y')
         heading_angle=gl.get_value('heading_angle')
         roll=gl.get_value('roll')
         my_boat.frequency=frequency

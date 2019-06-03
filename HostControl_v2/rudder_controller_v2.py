@@ -14,6 +14,8 @@ class rudder_controller():
         
         if keeping_state==2:
             self.rudder=self.maxrudder*self.sign(math.sin(current_angle-desired_angle))
+        elif keeping_state==3:
+            self.rudder=-self.maxrudder*self.sign(velocity[3])
         else:
             self.command_generator.setPerameter(0.5,0.2,0.5)
             if math.cos(current_angle-desired_angle)>0:##防止坐标在-pi到pi时跳跃
