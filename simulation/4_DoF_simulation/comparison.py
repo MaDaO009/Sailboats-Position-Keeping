@@ -24,13 +24,13 @@ class visualazation():
 
     def initialize_parameters(self):
         
-        self.run_times=385
-        self.counter=279
-        self.sychronize_interval=140
-        self.workbook = xlrd.open_workbook('./data/manu01.xlsx')
+        self.run_times=3000
+        self.counter=1130
+        self.sychronize_interval=1155
+        self.workbook = xlrd.open_workbook('./data/con1_5.xlsx')
         self.table=self.workbook.sheets()[0]
 
-        self.my_boat=sailboat(location=[2,3])
+        self.my_boat=sailboat(location=[2,3],target=[8,8])
         self.boat_generator=boat_profile.boat_profile(boat_size=0.15)
         
         self.all_line=[]
@@ -80,7 +80,7 @@ class visualazation():
 
         self.forward_velocity_window = self.figure.add_subplot(self.gs2[0])
         plt.xlabel('forward velocity')
-        plt.ylim(-0.2,1)
+        plt.ylim(-0.2,2)
         self.side_velocity_window = self.figure.add_subplot(self.gs2[1])
         plt.xlabel('side velocity')
         plt.ylim(-0.2,0.2)
@@ -185,8 +185,11 @@ class visualazation():
 
     def to_next_moment(self):
         
-        self.rudder=self.table.cell(self.counter+4,1).value
-        self.target_sail=self.table.cell(self.counter+4,2).value
+        # self.rudder=self.table.cell(self.counter+4,1).value
+        # self.target_sail=self.table.cell(self.counter+4,2).value
+        self.my_boat.updata_pos(self.x,self.y,self.heading_angle,self.roll)
+        self.rudder,self.target_sail,self.desired_angle=self.my_boat.update_state()
+        
         self.counter+=1
         
         for i in range(0,10):
@@ -276,6 +279,7 @@ class visualazation():
         # self.to_next_moment()
         # self.to_next_moment()
         # self.to_next_moment()
+        
         if self.counter<self.run_times:
             # print(self.counter)
             
@@ -370,7 +374,7 @@ class visualazation():
         
     def plot(self):
         ani = animation.FuncAnimation(
-            self.figure, self.animate1, init_func=self.init1, interval=50, blit=True, save_count=50)
+            self.figure, self.animate1, init_func=self.init1, interval=100, blit=True, save_count=50)
     
         plt.show()
         plt.close()

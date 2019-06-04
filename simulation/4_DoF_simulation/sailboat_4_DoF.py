@@ -101,6 +101,7 @@ class sailboat:
         
         if self.sleeper() != True:
             self.regular_all_angle()
+            self.desired_angle=2.6
             self.rudder_control()    
             
             self.sail_control()
@@ -120,6 +121,8 @@ class sailboat:
         #     # print('keeping state',self.keeping_state,'d',self.d)
             # print('adjust sail by',self.optimal_sail_adjustment)
             # print(self.last_v,self.velocity[0])
+        self.sail=0.4
+        
         return self.rudder,self.sail,self.desired_angle
 
     def sleeper(self):

@@ -26,7 +26,7 @@ def send(ser,rudder,sail,heading_angle):
     # if math.sin(heading_angle-math.pi/2)>0:
     #     sail_output=35+(sail_output-35)*9/8
     command=rudder_output//1*100+sail_output
-    print(sail_output,command)
+    # print(sail_output,command)
     command=(',,'+str(command)+',').encode(encoding='utf-8')
     # ser.write(command)
 
@@ -133,7 +133,7 @@ def get_message(ser):
     mess=ser.readline()
     mess=bytes.decode(mess)
     mess=str(mess)
-    print(mess)
+    # print(mess)
     if mess!=0:
         
         mess=mess.split(',')

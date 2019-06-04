@@ -1,4 +1,4 @@
-import four_DOF_simulator
+import four_DOF_simulator_v2
 import globalvar as gl
 import math
 import time
@@ -49,7 +49,9 @@ def get_app_wind(true_wind,v,u,heading_angle):
 
 
 def run():
+    counter=0
     while True:
+        counter+=1
         if gl.get_value('flag'):
             break
         sail=gl.get_value("sail")
@@ -71,10 +73,10 @@ def run():
         true_sail=get_true_sail(current_sail,app_wind)
         # print([u,v,p,w],[x,y,roll,heading_angle],111)
         true_wind[1]=math.pi/2-true_wind[1]
-        a,b,app_wind=four_DOF_simulator.to_next_moment(1/simulation_frequency,v,-u,-p,-w,y,x,-roll,math.pi/2-heading_angle,true_sail,rudder,true_wind)
+        a,b,app_wind[1]=four_DOF_simulator_v2.to_next_moment(1/simulation_frequency,v,-u,-p,-w,y,x,-roll,math.pi/2-heading_angle,true_sail,rudder,true_wind,counter)
         [v,u,p,w]=-a
         true_wind[1]=math.pi/2-true_wind[1]
-        
+        # print(app_wind)
         app_wind[1]=-app_wind[1]
         v*=-1
 
@@ -94,5 +96,6 @@ def run():
         gl.set_value("roll",roll)
         gl.set_value("heading_angle",heading_angle)
         gl.set_value("app_wind",app_wind)
+        # print('simulating')
         time.sleep(0.01)
    

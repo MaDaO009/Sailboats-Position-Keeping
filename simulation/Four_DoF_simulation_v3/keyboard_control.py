@@ -31,6 +31,8 @@ def main():
                     gl.set_value('keyboard_flag',True)
                 if event.key == pygame.K_s:
                     gl.set_value('keyboard_flag',False)
+                if event.key == pygame.K_t:
+                    gl.set_value('flag',True)
                 keyboard_flag=gl.get_value('keyboard_flag')
                 if keyboard_flag:
                     if event.key == pygame.K_LEFT:
@@ -68,7 +70,7 @@ def main():
         if abs(rudder)<0.05 and last_rudder != 0 and rudder_type=='up':
             move_rudder=0
             rudder=0
-            print('!!')
+            # print('!!')
         if abs(sail-0.5)<0.05 and last_sail !=0.5 and sail_type=='up':
             move_sail=0
             sail=0.5
@@ -83,7 +85,7 @@ def main():
         # print(rudder,sail)
         # pygame.display.update()
         if gl.get_value('keyboard_flag'):
-            print(gl.get_value('keyboard_flag'))
+            # print(gl.get_value('keyboard_flag'))
             gl.set_value('rudder',rudder)
             gl.set_value('sail',sail)
         time.sleep(0.1)

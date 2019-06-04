@@ -16,7 +16,7 @@ from lift_and_drag import *
 #         self.sail=0
 #         self.rudder=0
 
-print_frequency=5
+print_frequency=100
 def to_next_moment(sample_time,u,v,p,r,x,y,roll,yaw,sail,rudder,true_wind,counter):  ##true_wind[vx,vy]
     
     velocity,angular_velocity,v_and_angular_v,location_and_orientation=get_all_parameters(u,v,p,r,x,y,roll,yaw)
@@ -46,11 +46,11 @@ def to_next_moment(sample_time,u,v,p,r,x,y,roll,yaw,sail,rudder,true_wind,counte
     # print(location_and_orientation)
     location_and_orientation+=j_n.dot(v_and_angular_v)*sample_time
     # print('v and n',v_and_angular_v,location_and_orientation)
-    # if counter%print_frequency==0:
+    if counter%print_frequency==0:
         # print(true_wind)
         # print('v and angular v',v_and_angular_v)
         # print('all term',Mass_and_inertia_matrix_inverse.dot(all_other_terms),[u,v,p,r])
-        # print('rudder torque',rudder_torque,rudder)
+        print('rudder torque',rudder_torque,'\nsail tor',sail_torque)
     return v_and_angular_v,location_and_orientation,angle_app_wind
 
     
@@ -87,7 +87,10 @@ def get_sail_torque(sail,wind_angle_of_attack,app_wind_speed,angle_app_wind,coun
                         -(sail_lift*math.sin(angle_app_wind)-sail_drag*math.cos(angle_app_wind))*0.03*math.sin(sail)
                         +(sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind))*(0.2-0.12*math.cos(sail))])
     sail_torque=sail_torque.T
-    # if counter%print_frequency==0:
+    if counter%print_frequency==0:
+        print('sail lift,drag,angle,attack_angle,w_speed',
+        [sail_lift,sail_drag],
+        [angle_app_wind,wind_angle_of_attack,sail,app_wind_speed])
     #     print('sail tor',sail_torque,
     #     [sail_lift,sail_drag],
     #     [angle_app_wind,wind_angle_of_attack,sail,app_wind_speed])
@@ -165,9 +168,9 @@ def get_D_vn(u,v,p,r,roll,yaw,app_wind_speed,angle_app_wind,counter):
     
     D_k=get_D_k(u,v,p,r,roll,yaw)
     D_h=get_D_h(u,v,p,r,roll,yaw,app_wind_speed,angle_app_wind,counter)
-    # if counter%print_frequency==0:
-    #     print("D_heel_and_yaw",-D_heel_and_yaw,'\n',
-    #             "D_k",-D_k,)
+    if counter%print_frequency==0:
+        print('D_h',-D_h,
+                "\nD_k",-D_k,)
     D_vn=D_heel_and_yaw+D_h+D_k
     return D_vn
 
@@ -194,10 +197,15 @@ def get_D_h(u,v,p,r,roll,yaw,app_wind_speed,angle_app_wind,counter):
         print('error! abnormal roll')
     hull_speed=math.sqrt(hull_u**2+hull_v**2)
     hull_angle_of_attack=math.atan2(hull_v,-hull_u)
-    if hull_speed<0.4:
-        F_rh=hull_speed*0.25
+    
+    if hull_speed<0.5:
+        F_rh=hull_speed*0.15
     else:
-        F_rh=hull_speed*0.25-hull_speed**2*0.3
+        F_rh=hull_speed*0.15+hull_speed**2*0.15
+    if hull_u>0:
+        F_rh=F_rh*3
+
+    
     # F_rh=11*(hull_speed**2*hull_drag_coefficients(hull_angle_of_attack,hull_speed)+0.05*hull_speed)
     # h_lift=1*hull_speed**2*lift_coefficients(hull_angle_of_attack)
     h_lift=0
@@ -206,7 +214,8 @@ def get_D_h(u,v,p,r,roll,yaw,app_wind_speed,angle_app_wind,counter):
                 (-h_lift*math.cos(hull_angle_of_attack)-F_rh*math.sin(hull_angle_of_attack))*math.cos(roll)*0.03,
                 (-h_lift*math.cos(hull_angle_of_attack)-F_rh*math.sin(hull_angle_of_attack))*math.cos(roll)*(0.15-0.15*abs(math.sin(hull_angle_of_attack)))])
     
-    # if counter%print_frequency==0:    
+    if counter%print_frequency==0:    
+        print('hull speed,Frh',[hull_speed,F_rh,hull_angle_of_attack])
     #     print('Dh',-D_h,hull_angle_of_attack)
         # print('wind_torque',wind_torque)
     return D_h.T

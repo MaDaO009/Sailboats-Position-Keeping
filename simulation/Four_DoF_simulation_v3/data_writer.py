@@ -53,8 +53,8 @@ def run():
                 roll,headingvalue,gl.get_value('desired_angle'), 0,gl.get_value('v'),
                 gl.get_value('u'),gl.get_value('p'),gl.get_value('w'),currentvalue, voltagevalue,powervalue,
                 gl.get_value('keeping_state'),gl.get_value('tacking_angle'),gl.get_value('target_v')]) # Updating DataPoints Array
-                if sensor_times==0:
-                    print('current:',currentvalue,'voltage',voltagevalue,'heading',headingvalue)
+                # if sensor_times==0:
+                #     print('current:',currentvalue,'voltage',voltagevalue,'heading',headingvalue)
             except DeviceRangeError:
                 print('Device Range Error')
 
