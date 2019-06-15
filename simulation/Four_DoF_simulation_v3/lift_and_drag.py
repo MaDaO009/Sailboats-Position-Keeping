@@ -31,7 +31,7 @@ def get_rudder_lift_coefficient(angle_of_attack):
     return lift_coefficient
 
 def get_sail_drag_coefficient(angle_of_attack):
-    drag_coefficient=0.7-0.6*math.cos(2*angle_of_attack)
+    drag_coefficient=0.73-0.57*math.cos(2*angle_of_attack)
     return drag_coefficient
 
 def get_rudder_drag_coefficient(angle_of_attack):

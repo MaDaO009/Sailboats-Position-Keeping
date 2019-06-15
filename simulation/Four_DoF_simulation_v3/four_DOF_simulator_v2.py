@@ -100,19 +100,7 @@ def get_sail_torque(sail,wind_angle_of_attack,app_wind_speed,angle_app_wind,coun
     # print('app wind',[app_wind_speed,angle_app_wind])
     return sail_torque
 
-def lift_coefficients(angle_of_attack):
-    if math.cos(angle_of_attack)>-0.9:
-        lift_coefficient=math.sin(2*angle_of_attack)
-    else:
-        lift_coefficient=0
-    return lift_coefficient
 
-def drag_coefficients(angle_of_attack):
-    if math.cos(angle_of_attack)>-0.9:
-        drag_coefficient=0.7-0.6*math.cos(2*angle_of_attack)
-    else:
-        drag_coefficient=0.75
-    return drag_coefficient
 
 def hull_drag_coefficients(angle_of_attack,hull_speed):
     if hull_speed>0.4:
@@ -205,11 +193,11 @@ def get_D_h(u,v,p,r,roll,yaw,app_wind_speed,angle_app_wind,counter):
     hull_angle_of_attack=math.atan2(hull_v,-hull_u)
     
     if hull_speed<0.5:
-        F_rh=hull_speed*0.15
+        F_rh=hull_speed*0.1
     else:
-        F_rh=hull_speed*0.15+hull_speed**2*0.15
+        F_rh=hull_speed*0.1+(hull_speed-0.5)**2*10
     if hull_u>0:
-        F_rh=F_rh*3
+        F_rh=-F_rh*3
 
     
     # F_rh=11*(hull_speed**2*hull_drag_coefficients(hull_angle_of_attack,hull_speed)+0.05*hull_speed)
