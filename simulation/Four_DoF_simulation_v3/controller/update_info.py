@@ -52,6 +52,7 @@ class info_updator():
         
 
         v=(del_x*math.cos(self.position[3])+del_y*math.sin(self.position[3]))*self.frequency
+        
         u=(-del_x*math.sin(self.position[3])+del_y*math.cos(self.position[3]))*self.frequency
         r=(heading_angle-last_heading)*self.frequency
         p=(roll-last_roll)*self.frequency
@@ -81,13 +82,14 @@ class info_updator():
         u=0
         p=0
         r=0
-        [v,u]=self.smoothing_curve()
-        # for i in range (0,self.list_lens):
-        #     v+=self.v_list[i]/self.list_lens
-        #     u+=self.u_list[i]/self.list_lens
+        # [v,u]=self.smoothing_curve()
+        for i in range (0,self.list_lens):
+            v+=self.v_list[i]/self.list_lens
+            u+=self.u_list[i]/self.list_lens
         for i in range (0,2):
             r+=self.r_list[i]/2
             p+=self.p_list[i]/2
+        # print('aaaaa',v)
         return [v,u,p,r]
 
     def smoothing_curve(self):

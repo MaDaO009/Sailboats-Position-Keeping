@@ -1,7 +1,14 @@
 import math
 
+def regular_angle(angle_of_attack):
+    while angle_of_attack>math.pi:
+        angle_of_attack-=math.pi*2
+        # print(angle_of_attack)
+    while angle_of_attack<-math.pi:
+        angle_of_attack+=math.pi*2
+    return angle_of_attack
 def get_sail_lift_coefficient(angle_of_attack):
-    
+    angle_of_attack=regular_angle(angle_of_attack)
     if angle_of_attack>=0 and angle_of_attack<0.7:
         lift_coefficient=1.85*angle_of_attack
     elif angle_of_attack>=0.7 and angle_of_attack<2.79:
@@ -14,15 +21,10 @@ def get_sail_lift_coefficient(angle_of_attack):
     return lift_coefficient
 
 def get_rudder_lift_coefficient(angle_of_attack):
-    while angle_of_attack>math.pi:
-        angle_of_attack-=math.pi*2
-        # print(angle_of_attack)
-    while angle_of_attack<-math.pi:
-        angle_of_attack+=math.pi*2
-        # print(angle_of_attack)
+    angle_of_attack=regular_angle(angle_of_attack)
     if angle_of_attack>=0:
         if angle_of_attack<1.58:
-            lift_coefficient=1.2*math.sin(math.pi*(angle_of_attack/math.pi*2)**(5/8.6))
+            lift_coefficient=1.2*math.sin(math.pi*(angle_of_attack/math.pi*2)**(5/6))
         else:
             # print(angle_of_attack,'aaa')
             lift_coefficient=-get_rudder_lift_coefficient(math.pi-angle_of_attack)
@@ -31,10 +33,14 @@ def get_rudder_lift_coefficient(angle_of_attack):
     return lift_coefficient
 
 def get_sail_drag_coefficient(angle_of_attack):
+    angle_of_attack=regular_angle(angle_of_attack)
+    
     drag_coefficient=0.7-0.6*math.cos(2*angle_of_attack)
     return drag_coefficient
 
 def get_rudder_drag_coefficient(angle_of_attack):
+    angle_of_attack=regular_angle(angle_of_attack)
+    
     drag_coefficient=1.05-1.05*math.cos(2*angle_of_attack)
     return drag_coefficient
 

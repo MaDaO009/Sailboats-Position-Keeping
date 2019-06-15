@@ -25,9 +25,9 @@ class visualazation():
     def initialize_parameters(self):
         
         self.run_times=3000
-        self.counter=1130
-        self.sychronize_interval=1155
-        self.workbook = xlrd.open_workbook('./data/con1_5.xlsx')
+        self.counter=150
+        self.sychronize_interval=155
+        self.workbook = xlrd.open_workbook('./data/turning_30.xlsx')
         self.table=self.workbook.sheets()[0]
 
         self.my_boat=sailboat(location=[2,3],target=[8,8])
@@ -80,7 +80,7 @@ class visualazation():
 
         self.forward_velocity_window = self.figure.add_subplot(self.gs2[0])
         plt.xlabel('forward velocity')
-        plt.ylim(-0.2,2)
+        plt.ylim(-0.2,1)
         self.side_velocity_window = self.figure.add_subplot(self.gs2[1])
         plt.xlabel('side velocity')
         plt.ylim(-0.2,0.2)
@@ -185,10 +185,11 @@ class visualazation():
 
     def to_next_moment(self):
         
-        # self.rudder=self.table.cell(self.counter+4,1).value
-        # self.target_sail=self.table.cell(self.counter+4,2).value
-        self.my_boat.updata_pos(self.x,self.y,self.heading_angle,self.roll)
-        self.rudder,self.target_sail,self.desired_angle=self.my_boat.update_state()
+        self.rudder=self.table.cell(self.counter+4,1).value
+        self.target_sail=self.table.cell(self.counter+4,2).value
+
+        # self.my_boat.updata_pos(self.x,self.y,self.heading_angle,self.roll)
+        # self.rudder,self.target_sail,self.desired_angle=self.my_boat.update_state()
         
         self.counter+=1
         
@@ -310,6 +311,7 @@ class visualazation():
             self.u=self.table.cell(self.counter+4,10).value
             self.velocity=[self.v,self.u]
             self.w=self.table.cell(self.counter+4,11).value
+            self.roll=self.table.cell(self.counter+4,5).value
             self.angular_velocity=self.w
             # print(self.velocity,self.angular_velocity)
         # print(self.v,u)
@@ -358,11 +360,12 @@ class visualazation():
         coo_wind=[0,-2]
         # del_x=coo_wind[0]*2*self.boat_size
         # del_y=coo_wind[1]*2*self.boat_size
-        del_x=-math.sin(self.my_boat.roll)
-        del_y=math.cos(self.my_boat.roll)
+        del_x=-math.sin(self.roll)
+        del_y=math.cos(self.roll)
+        # print(self.roll,'!!!!!!!!!!!!!!!!!!!!!!!!!!')
         self.wind_y_data=np.array([3.75,del_y+3.75])
         self.wind_x_data=np.array([6.75,del_x+6.75])
-        self.line_wind,=self.main_window.plot(self.wind_x_data,self.wind_y_data,color='black')
+        self.line_wind.set_data(self.wind_x_data,self.wind_y_data)
 
     def sign(self,p):
         if p>0:

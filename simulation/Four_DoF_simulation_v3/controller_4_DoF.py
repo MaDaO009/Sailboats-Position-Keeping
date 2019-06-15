@@ -12,7 +12,7 @@ Updated on FRI DEC 29 13:56:39 2018
 
 import time
 import globalvar as gl
-from controller.sailboat_4_DOF_v2 import sailboat
+from sailboat_4_DOF_v2 import sailboat
 import math
 import serial 
 import re
@@ -65,7 +65,8 @@ def run(ser):
         # else:
         #     gl.set_value('frequency',10)
 
-        frequency=gl.get_value('frequency')
+        # frequency=gl.get_value('frequency')
+        frequency=10
         ##get information of sailboat
         x=gl.get_value('ob_x')
         y=gl.get_value('ob_y')
@@ -114,9 +115,9 @@ def run(ser):
     
     # End the program        
     
-    send(ser,0,0,heading_angle)
+    # send(ser,0,0,heading_angle)
     print('Motors Stopped \n')
-    time.sleep(0.5)
+    time.sleep(0.1)
    
  
 

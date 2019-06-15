@@ -13,7 +13,7 @@ import time
 import math
 import globalvar as gl
 import threading
-from controller import controller_4_DoF
+import controller_4_DoF
 
 import data_writer
 import simulator
@@ -58,14 +58,12 @@ if __name__ == "__main__":
 
     
     t1 = threading.Thread(target= controller_4_DoF.run,kwargs={'ser':ser}) # Receiving Commands
-    
     t3 = threading.Thread(target= data_writer.run)
     t4 = threading.Thread(target= simulator.run)
     t5 = threading.Thread(target= keyboard_control.main)
     
     
     t1.start() # start thread 1
-    
     t3.start() # start thread 3
     t4.start()
     t5.start()

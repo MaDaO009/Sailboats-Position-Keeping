@@ -84,8 +84,8 @@ def get_app_wind(true_wind,velocity,angular_velocity,roll,yaw,u,v,r,p,sail):
     return v_app_wind,angle_app_wind,wind_angle_of_attack
     
 def get_sail_torque(sail,wind_angle_of_attack,app_wind_speed,angle_app_wind,counter):
-    sail_lift=0.5*1.29*0.2*app_wind_speed**2*4*lift_coefficients(wind_angle_of_attack)  ##0.5*density*A*v^2*4=2.5
-    sail_drag=0.5*1.29*0.2*app_wind_speed**2*6*drag_coefficients(wind_angle_of_attack)  #Ds
+    sail_lift=0.5*1.29*0.2*app_wind_speed**2*3*lift_coefficients(wind_angle_of_attack)  ##0.5*density*A*v^2*4=2.5
+    sail_drag=0.5*1.29*0.2*app_wind_speed**2*3*drag_coefficients(wind_angle_of_attack)  #Ds
     # print('lift',sail_lift,'drag',sail_drag,'attack angle',wind_angle_of_attack)
     sail_torque=np.array([sail_lift*math.sin(angle_app_wind)-sail_drag*math.cos(angle_app_wind),
                         sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind),
@@ -137,8 +137,8 @@ def get_rudder_torque(rudder,u,v,r,p,counter):
     angle_app_rudder=math.atan2(v_rudder,-u_rudder)
     rudder_angle_of_attack=angle_app_rudder-rudder
     
-    rudder_lift=3*rudder_speed**2*lift_coefficients(rudder_angle_of_attack)
-    rudder_drag=4*rudder_speed**2*drag_coefficients(rudder_angle_of_attack)
+    rudder_lift=5*rudder_speed**2*lift_coefficients(rudder_angle_of_attack)
+    rudder_drag=6*rudder_speed**2*drag_coefficients(rudder_angle_of_attack)
     # print('rudder',rudder,'speed',rudder_speed,'angle',rudder_angle_of_attack,"L",rudder_lift,"d",rudder_drag)
     rudder_torque=np.array([rudder_lift*math.sin(angle_app_rudder)-rudder_drag*math.cos(angle_app_rudder),
                             rudder_lift*math.cos(angle_app_rudder)+rudder_drag*math.sin(angle_app_rudder),
@@ -181,8 +181,8 @@ def get_D_k(u,v,p,r,roll,yaw):
     keel_v=-v+p*0.15-r*0.1
     keel_speed=math.sqrt(keel_u**2+keel_v**2)
     keel_angle_of_attack=math.atan2(keel_v,-keel_u)
-    keel_lift=3*keel_speed**2*lift_coefficients(keel_angle_of_attack)
-    keel_drag=5*keel_speed**2*drag_coefficients(keel_angle_of_attack)
+    keel_lift=7*keel_speed**2*lift_coefficients(keel_angle_of_attack)
+    keel_drag=8*keel_speed**2*drag_coefficients(keel_angle_of_attack)
     D_k=np.array([-keel_lift*math.sin(keel_angle_of_attack)+keel_drag*math.cos(keel_angle_of_attack),
                 -keel_lift*math.cos(keel_angle_of_attack)-keel_drag*math.sin(keel_angle_of_attack),
                 (-keel_lift*math.cos(keel_angle_of_attack)-keel_drag*math.sin(keel_angle_of_attack))*0.1,
