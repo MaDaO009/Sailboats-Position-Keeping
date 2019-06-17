@@ -14,11 +14,11 @@ Firstly, call the method update_pos(), then update_state() to get new sail and r
 import math
 import random
 import time
-from controller.pid2 import PID
-from controller.rudder_controller_v2 import rudder_controller
-from controller.update_info import info_updator
-from controller.sail_control_v2 import sailcontroller
-import controller.get_desired_angle_v2 as get_desired_angle
+from controller_v3.pid2 import PID
+from controller_v3.rudder_controller import rudder_controller
+from controller_v3.update_info import info_updator
+from controller_v3.sail_control import sailcontroller
+import controller_v3.get_desired_angle as get_desired_angle
 
 
 class sailboat:
