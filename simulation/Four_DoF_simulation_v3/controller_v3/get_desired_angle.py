@@ -2,6 +2,7 @@ import math
 
 ref_point=[0,0]
 
+
 def run(velocity,position,target,true_wind,dT,dM,last_desired_angle,tacking_angle,tacking_sign,
 start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
     
@@ -13,12 +14,13 @@ start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
     
     
 
-    if true_distance_st>dT:
+    if distance_st>dT:
         keeping_state=0
         desired_angle=go_to_target_area(boat_to_target_angle,distance_st,dM,dT,true_wind)
     else:
+        # print('@!!!!',target,position)
         desired_angle,keeping_state=keeping_in_target_area(position,velocity,distance_st,target,keeping_state,
-        true_wind,boat_to_target_angle,dT)
+        true_wind,boat_to_target_angle,dT,last_desired_angle)
     # print('last1',last_desired_angle,desired_angle)
     tacking_angle,tacking_sign,start_tacking_time,desired_angle=tacking_detector(velocity[0],position[3],desired_angle,
     last_desired_angle,tacking_angle,tacking_sign,true_wind,start_tacking_time,counter,force_turning_angle,
@@ -102,87 +104,91 @@ def go_to_target_area(boat_to_target_angle,distance_st,dM,dT,true_wind):
                 next_desired_angle=math.pi/2+boat_to_target_angle
 
     if math.cos(true_wind[1]-next_desired_angle)<-0.6: ##exceed dead angle
-        next_desired_angle=sign(math.sin(true_wind[1]-next_desired_angle))*0.8+true_wind[1]+math.pi
+        next_desired_angle=sign(math.sin(true_wind[1]-next_desired_angle))*0.88+true_wind[1]+math.pi
     next_desired_angle=regular_angle(next_desired_angle)
     return next_desired_angle
 
-# def keeping_in_target_area(position,velocity,distance_st,target,keeping_state,true_wind,boat_to_target_angle,dT):
-#     # del_x=distance_st*math.sin(true_wind[1]-boat_to_target_angle)
-#     # del_y=distance_st*math.cos(true_wind[1]-boat_to_target_angle)
-#     if keeping_state==0:
-#         keeping_state=1
-#     if keeping_state==1:
-#         desired_angle=true_wind[1]+math.pi+sign(math.sin(true_wind[1]-position[3]))*0.8
-#         if velocity[0]>0.3 and sign(math.sin(position[3]-true_wind[1])) != sign(math.sin(boat_to_target_angle-true_wind[1])):
-#             keeping_state=2
-#         # print('!!!!!!!!!!')
-#     if keeping_state==2:
-        
-#         desired_angle=true_wind[1]+math.pi
-#         desired_angle=regular_angle(desired_angle)
-#         if math.cos(position[3]-true_wind[1])>-0.8:
-#             keeping_state=1
-        
-#     if distance_st*math.cos(true_wind[1]-boat_to_target_angle)>0.8*dT:
-#         keeping_state=3
-#         if math.cos(boat_to_target_angle-true_wind[1])<-0.3:
-#             if sign(math.sin(position[3]-true_wind[1])) == sign(math.sin(boat_to_target_angle-true_wind[1])):
-#                 keeping_state=1
 
-    
-#     return desired_angle,keeping_state
         
-def keeping_in_target_area(position,velocity,distance_st,target,keeping_state,true_wind,boat_to_target_angle,dT):
+def keeping_in_target_area(position,velocity,distance_st,target,keeping_state,true_wind,boat_to_target_angle,dT,last_desired_angle):
     global ref_point
     # del_x=distance_st*math.sin(true_wind[1]-boat_to_target_angle)
     # del_y=distance_st*math.cos(true_wind[1]-boat_to_target_angle)
-    
+    dx=target[0]-position[0]
+    dy=target[1]-position[1]
+    d_wind_x=dx*math.cos(true_wind[1])+dy*math.sin(true_wind[1])
+    d_wind_y=-dx*math.sin(true_wind[1])+dy*math.cos(true_wind[1])
     if keeping_state==0:
         ##判断船头是否朝里
         h_x=position[0]+dT*math.cos(position[3])
         h_y=position[1]+dT*math.sin(position[3])
-        if math.sqrt((h_x-target[0])**2+(h_y-target[1])**2)<dT
+        if math.sqrt((h_x-target[0])**2+(h_y-target[1])**2)<dT:
             keeping_state=1
             ##判断船在靠上位置还是靠下位置
-            dx=target[0]-position[0]
-            dy=target[1]-position[1]
-            d_wind_x=dx*math.cos(true_wind[1])+dy*math.sin(true_wind[1])
-            d_wind_y=-dx*math.sin(true_wind[1])+dy*math.cos(true_wind[1])
+            # dx=target[0]-position[0]
+            # dy=target[1]-position[1]
+            # d_wind_x=dx*math.cos(true_wind[1])+dy*math.sin(true_wind[1])
+            # d_wind_y=-dx*math.sin(true_wind[1])+dy*math.cos(true_wind[1])
             if d_wind_x>0:  ##风向相反/靠上位置
                 ##生成参考点
-                ref_point[0]=dT/2*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))-dT/2.5*math.cos(true_wind[1])
-                ref_point[1]=dT/2*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))-dT/2.5*math.sin(true_wind[1])
+                ref_point[0]=target[0]+dT/2*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))-dT/2.5*math.cos(true_wind[1])
+                ref_point[1]=target[1]+dT/2*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))-dT/2.5*math.sin(true_wind[1])
+                print('ref point2',ref_point)
             else:##与风向同向/靠下位置
                 ##生成参考点
-                ref_point[0]=dT/1.5*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.cos(true_wind[1])
-                ref_point[1]=dT/1.5*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.sin(true_wind[1])
+                ref_point[0]=target[0]+dT/1.5*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.cos(true_wind[1])
+                ref_point[1]=target[1]+dT/1.5*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.sin(true_wind[1])
+                print('ref point1',ref_point)
+            desired_angle=math.atan2(ref_point[1]-position[1],ref_point[0]-position[0])
             
+        else:
+            desired_angle=last_desired_angle
+
     if keeping_state==1:
+        # print(sign(d_wind_y))
         desired_angle=math.atan2(ref_point[1]-position[1],ref_point[0]-position[0])
         distance_b_r=math.sqrt((ref_point[1]-position[1])**2+(ref_point[0]-position[0])**2)
-        if velocity[0]>0.45 and (math.cos(boat_to_target_angle-true_wind[1])<-0.9 or distance_b_r<0.2:
+        if math.cos(desired_angle-true_wind[1])<-0.6:
+            desired_angle=true_wind[1]-sign(math.sin(desired_angle-true_wind[1]))*math.pi/0.7
+        elif math.cos(desired_angle-true_wind[1])>-0.2:
+            desired_angle=true_wind[1]-sign(math.sin(desired_angle-true_wind[1]))*math.pi/0.58
+        if velocity[0]>0.45 and (math.sin(boat_to_target_angle-true_wind[1])*sign(d_wind_y)>0 or distance_b_r<0.2):
             keeping_state=2
-        # print('!!!!!!!!!!')
+            desired_angle=true_wind[1]+math.pi*0.65*sign(d_wind_y)
+            desired_angle=regular_angle(desired_angle)
+            print('State  2',desired_angle,velocity[0],sign(d_wind_y))
     if keeping_state==2:## tack
-        dx=target[0]-position[0]
-        dy=target[1]-position[1]
-        d_wind_x=dx*math.cos(true_wind[1])+dy*math.sin(true_wind[1])
-        d_wind_y=-dx*math.sin(true_wind[1])+dy*math.cos(true_wind[1])
+        
 
         desired_angle=true_wind[1]+math.pi*0.65*sign(d_wind_y)
         desired_angle=regular_angle(desired_angle)
         if math.cos(position[3]-desired_angle)>0.8:
             keeping_state=3
-    elif keeping_state==3:
-        desired_angle=true_wind[1]
-    if distance_st*math.cos(true_wind[1]-boat_to_target_angle)>0.8*dT:
-        desired_angle=true_wind[1]
-        keeping_state=3
-        if math.cos(boat_to_target_angle-true_wind[1])<-0.3:
-            if sign(math.sin(position[3]-true_wind[1])) == sign(math.sin(boat_to_target_angle-true_wind[1])):
-                keeping_state=1
+            ref_point[0]=target[0]+dT/2*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))-dT/2.5*math.cos(true_wind[1])
+            ref_point[1]=target[1]+dT/2*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))-dT/2.5*math.sin(true_wind[1])
+            print('ref point 2',ref_point,'State 3')
+        
 
-    
+    elif keeping_state==3:
+        distance_b_r=math.sqrt((ref_point[1]-position[1])**2+(ref_point[0]-position[0])**2)
+        if math.sin(boat_to_target_angle-true_wind[1])*sign(d_wind_y)>0 or distance_b_r<0.1:
+            desired_angle=true_wind[1]
+            keeping_state=4
+        if position[1]<5.1:
+            keeping_state=1
+            ref_point[0]=target[0]+dT/1.5*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.cos(true_wind[1])
+            ref_point[1]=target[1]+dT/1.5*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.sin(true_wind[1])
+        desired_angle=math.atan2(ref_point[1]-position[1],ref_point[0]-position[0])
+        
+
+
+    elif keeping_state==4:
+        desired_angle=true_wind[1]+math.pi*0.25*sign(d_wind_y)
+        if math.cos(position[3]-desired_angle)>0.8:
+            keeping_state=1
+            ref_point[0]=target[0]+dT/1.5*math.cos(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.cos(true_wind[1])
+            ref_point[1]=target[1]+dT/1.5*math.sin(true_wind[1]+math.pi/2*sign(d_wind_y))+dT/5*math.sin(true_wind[1])
+            print('ref point1',ref_point)
     return desired_angle,keeping_state
     
     

@@ -33,7 +33,7 @@ class sailcontroller():
             # else:
             #     target_v=0.15
         elif keeping_state==2:
-            target_v=0.1
+            target_v=0.5
         elif keeping_state==3:
             target_v=0.2
         elif keeping_state==4:

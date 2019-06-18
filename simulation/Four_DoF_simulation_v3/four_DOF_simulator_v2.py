@@ -88,11 +88,11 @@ def get_sail_torque(sail,wind_angle_of_attack,app_wind_speed,angle_app_wind,coun
                         -(sail_lift*math.sin(angle_app_wind)-sail_drag*math.cos(angle_app_wind))*0.03*math.sin(sail)
                         +(sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind))*(0.2-0.12*math.cos(sail))])
     sail_torque=sail_torque.T
-    if counter%print_frequency==0:
-    #     print('sail lift,drag,angle,attack_angle,w_speed',
+    # if counter%print_frequency==0:
+        # print('sail lift,drag,angle,attack_angle,w_speed',
     #     [sail_lift,sail_drag],
     #     [angle_app_wind,wind_angle_of_attack,sail,app_wind_speed])
-        print('sail tor',sail_torque,wind_angle_of_attack)
+        # print('sail tor',sail_torque,wind_angle_of_attack)
     #     [sail_lift,sail_drag],
     #     [angle_app_wind,wind_angle_of_attack,sail,app_wind_speed])
     #     print(0.5*1.29*0.2*app_wind_speed**2*4*lift_coefficients(wind_angle_of_attack),  ##0.5*density*A*v^2*4=2.5
@@ -197,7 +197,7 @@ def get_D_h(u,v,p,r,roll,yaw,app_wind_speed,angle_app_wind,counter):
     else:
         F_rh=hull_speed*0.1+(hull_speed-0.5)**2*10
     if hull_u>0:
-        F_rh=-F_rh*3
+        F_rh=F_rh*3
 
     
     # F_rh=11*(hull_speed**2*hull_drag_coefficients(hull_angle_of_attack,hull_speed)+0.05*hull_speed)

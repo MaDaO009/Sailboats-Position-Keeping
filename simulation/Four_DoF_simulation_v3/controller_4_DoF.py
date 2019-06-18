@@ -12,7 +12,7 @@ Updated on FRI DEC 29 13:56:39 2018
 
 import time
 import globalvar as gl
-from sailboat_4_DOF_v2 import sailboat
+from sailboat_v3 import sailboat
 import math
 import serial 
 import re
