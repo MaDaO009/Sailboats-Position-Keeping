@@ -47,7 +47,7 @@ def get_app_wind(true_wind,v,u,heading_angle):
         app_wind=[math.sqrt(pow(app_wind[1],2)+pow(app_wind[0],2)),angle]
         return app_wind
 
-
+s_frame_true_wind=[1.5,math.pi]
 def run():
     counter=0
     while True:
@@ -73,10 +73,10 @@ def run():
         true_sail=get_true_sail(current_sail,app_wind)
         # print(true_sail,app_wind[1],"ttttssss")
         # print([u,v,p,w],[x,y,roll,heading_angle],111)
-        true_wind[1]=math.pi/2-true_wind[1]
-        a,b,app_wind[1]=four_DOF_simulator_v2.to_next_moment(1/simulation_frequency,v,-u,-p,-w,y,x,-roll,math.pi/2-heading_angle,true_sail,rudder,true_wind,counter)
+        s_frame_true_wind[1]=math.pi/2-true_wind[1]
+        a,b,app_wind[1]=four_DOF_simulator_v2.to_next_moment(1/simulation_frequency,v,-u,-p,-w,y,x,-roll,math.pi/2-heading_angle,true_sail,rudder,s_frame_true_wind,counter)
         [v,u,p,w]=-a
-        true_wind[1]=math.pi/2-true_wind[1]
+        
         # print(app_wind)
         app_wind[1]=-app_wind[1]
         v*=-1

@@ -73,7 +73,7 @@ def run(ser):
         heading_angle=gl.get_value('heading_angle')
         roll=gl.get_value('roll')
         my_boat.frequency=frequency
-        
+        # print(gl.get_value('true_wind'))
         rudder,sail,desired_angle=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
         if gl.get_value('keyboard_flag'):
             rudder=gl.get_value('rudder')

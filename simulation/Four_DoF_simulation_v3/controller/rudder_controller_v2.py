@@ -73,8 +73,10 @@ class rudder_controller():
     def generate_command(self,desired_angle,current_angle,keeping_state,velocity,tacking_angle,
     force_turning_angle,boat_to_target_angle,true_wind):
         
+        if keeping_state==2:
+            self.rudder=-self.maxrudder*self.sign(math.sin(boat_to_target_angle-true_wind[1]))
         
-        if keeping_state!=2 :  
+        else:  
             
             if math.cos(current_angle-desired_angle)>0:##防止坐标在-pi到pi时跳跃
                 if current_angle-desired_angle>math.pi/2:
@@ -97,8 +99,9 @@ class rudder_controller():
                 if self.sign(self.rudder) == self.sign(math.sin(force_turning_angle-true_wind[1])):
                     self.rudder=-self.rudder
                 # print(self.rudder,'3')
-        else:
-            self.rudder=-self.maxrudder*self.sign(math.sin(boat_to_target_angle-true_wind[1]))
+        
+        if keeping_state==4:
+            self.rudder=self.maxrudder*self.sign(self.rudder)
 
         if velocity[0]<0 and self.sign_signal>-0.8:
             self.sign_signal-=0.2

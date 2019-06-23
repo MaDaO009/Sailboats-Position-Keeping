@@ -100,6 +100,9 @@ class rudder_controller():
         else:
             self.rudder=self.maxrudder*self.sign(math.sin(boat_to_target_angle-true_wind[1]))
 
+        if keeping_state==4:
+            self.rudder=self.maxrudder*self.sign(self.rudder)
+            
         if velocity[0]<0 and self.sign_signal>-0.8:
             self.sign_signal-=0.2
         elif velocity[0]>0 and self.sign_signal<0.8:

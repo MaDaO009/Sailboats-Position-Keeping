@@ -69,7 +69,7 @@ class sailboat:
         
         self.true_wind=true_wind
         self.get_app_wind()
-
+        # print('sailboat',self.true_wind[1])
         self.velocity,course_angle,self.position=self.velocity_updator.update_velocity(new_location,self.position)
         # print('vvvvv',self.velocity[0])
         [self.desired_angle,self.keeping_state,self.force_turning_angle,self.tacking_angle,
