@@ -1,17 +1,18 @@
 
-dely=
-delx=
-if dely>-0.3: #在上半部分
-    if abs(delx)<0.6: #在中间
-        ref_point=
-    else: 
-        ref_point=
-        ref_angle=
-        if sign(ref_angle)!=sign(heading) and cos(heading-wind_angle)<cos(ref_angle-wind_angle):
-            tack_or_turn()
+def keep_in_target_area():
+
+    if there_exists_points_according_to_heading_angle():
+        if in_up_wind_area(heading_angle,true_wind,position):
+            reference_point=select_farther_upper_point()
         else:
-            line_follow
-
-
-
-else:#在下半部分
+            reference_point=select_farther_lower_point()
+    
+    else:
+        if in_up_wind_area(heading_angle,true_wind,position):
+            wear(initial_angle)
+        else:
+            if velocity[0]<0.35:
+                wear(initial_angle)
+            else:
+                tack_if_is_able_to(initial_angle)
+    
