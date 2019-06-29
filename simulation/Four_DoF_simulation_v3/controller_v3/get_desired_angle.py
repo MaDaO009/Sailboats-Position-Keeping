@@ -25,10 +25,11 @@ start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
         desired_angle=go_to_target_area(boat_to_target_angle,distance_st,dM,dT,true_wind)
         target_v=0
     else:
+        keeping_state=1
         desired_angle,target_v=position_keeper.run(position[0],position[1],target,true_wind,position[3],velocity[0])
         # print('@!!!!',target,position)
-        desired_angle,keeping_state=keeping_in_target_area(position,velocity,distance_st,target,keeping_state,
-        true_wind,boat_to_target_angle,dT,last_desired_angle)
+        # desired_angle,keeping_state=keeping_in_target_area(position,velocity,distance_st,target,keeping_state,
+        # true_wind,boat_to_target_angle,dT,last_desired_angle)
     # print('last1',last_desired_angle,desired_angle)
     tacking_angle,tacking_sign,start_tacking_time,desired_angle=tacking_detector(velocity[0],position[3],desired_angle,
     last_desired_angle,tacking_angle,tacking_sign,true_wind,start_tacking_time,counter,force_turning_angle,

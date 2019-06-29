@@ -6,8 +6,8 @@ import copy
 
 
 class position_keeper():
-    def __init__(self,accelerating_x_distance=1.1,wearing_y_distance=1.2):
-        self.alternative_points_list=[[None,None]]*4 
+    def __init__(self,accelerating_x_distance=0.9,wearing_y_distance=0.9):
+        self.alternative_points_list=[[None,None],[None,None],[None,None],[None,None]] 
         #[upper_left_point,upper_right_point,lower_left_point,lower_right_point]
         
         self.reference_point=None
@@ -15,7 +15,8 @@ class position_keeper():
         self.accelerating_x_distance=accelerating_x_distance
         self.wearing_y_distance=wearing_y_distance
 
-        self.state='to_point'
+        # self.state='to_point'
+        self.target_angle=0
         self.initial_wear_angle=None
         self.initial_tack_angle=None
 
@@ -37,13 +38,14 @@ class position_keeper():
         self.alternative_points_list[3][1]=target[1]+self.accelerating_x_distance/1.8*math.sin(true_wind[1]+math.pi/2)+self.wearing_y_distance/3.5*math.sin(true_wind[1])
         ##+    - 
         ##-    -
+        # print('list!!!!!!',self.alternative_points_list)
         
     def determine_current_area(self,sailboat_x,sailboat_y,true_wind,target,heading_angle):
         dx=target[0]-sailboat_x
         dy=target[1]-sailboat_y
         d_wind_x=-dx*math.cos(true_wind[1])-dy*math.sin(true_wind[1])
         d_wind_y=dx*math.sin(true_wind[1])-dy*math.cos(true_wind[1])
-        if d_wind_x<-d_wind_y*self.sign(math.sin(heading_angle-true_wind[1]))*math.sin(math.pi/6)+wearing_y_distance/10:
+        if d_wind_x<-d_wind_y*self.sign(math.sin(heading_angle-true_wind[1]))*math.sin(math.pi/6)+self.wearing_y_distance/10:
             ## Up wind area:
             return "upper_area"
         else:
@@ -85,6 +87,7 @@ class position_keeper():
                 self.reference_point=self.alternative_points_list[2]
             else:
                 self.reference_point=self.alternative_points_list[3]
+            # print([distance3,distance4])
             return max(distance3,distance4)
 
 
@@ -92,25 +95,31 @@ class position_keeper():
         
         if current_area=='upper_area':
             target_v=0.2
-            if cos(math.pi/5*3.5+true_wind[1]) !=0:
+            ref_angle=self.sign(math.sin(heading_angle-true_wind[1]))*math.pi/5*3.5+true_wind[1]
+            ref_angle=self.regular_angle(ref_angle)
+            if math.cos(math.pi/5*3.5+true_wind[1]) !=0:
                 reference_k=self.sign(math.sin(heading_angle-true_wind[1]))*math.tan(math.pi/5*3.5+true_wind[1])
                 reference_b=self.reference_point[1]-reference_k*self.reference_point[0]
-                point_to_line_distance=self.sign(math.sin(math.pi/5-true_wind[1]))(-sailboat_y+reference_k*sailboat_x+reference_b)/math.sqrt(1+reference_k**2)
+
+                point_to_line_distance=self.sign(math.sin(math.pi/5-true_wind[1]))*(-sailboat_y+reference_k*sailboat_x+reference_b)/math.sqrt(1+reference_k**2)
                 #如果点在线下面，则point_to_line_distance>0
 
                 ##得到目标角度
+                
                 if distance<self.accelerating_x_distance/2:
-                    target_angle=atan2(reference_k)+point_to_line_distance*(distance/self.accelerating_x_distance)**2
+                    self.target_angle=ref_angle+point_to_line_distance*(distance/self.accelerating_x_distance)**2
                 else:
-                    target_angle=atan2(reference_k)+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)
-            
+                    self.target_angle=ref_angle+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance))**2
+                print('ref_angle',ref_angle,'target_angle',self.target_angle,'pl_distance',point_to_line_distance)
+
             else:
                 point_to_line_distance=self.reference_point[0]-sailboat_x
-
+                ####可能有错############
+                
                 if distance<self.accelerating_x_distance/2:
-                    target_angle=math.pi/2*self.sign(math.sin(heading_angle))+point_to_line_distance*(distance/self.accelerating_x_distance)**2
+                    self.target_angle=ref_angle+point_to_line_distance*(distance/self.accelerating_x_distance)**2*3
                 else:
-                    target_angle=math.pi/2*self.sign(math.sin(heading_angle))+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)
+                    self.target_angle=ref_angle+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)*3
             
 
 
@@ -118,73 +127,88 @@ class position_keeper():
             
         else:
             target_v=0.7
-            if cos(math.pi/6.5*4.25+true_wind[1]) !=0:
+            ref_angle=self.sign(math.sin(heading_angle-true_wind[1]))*math.pi/6.5*4.25+true_wind[1]
+            ref_angle=self.regular_angle(ref_angle)
+            if math.cos(math.pi/6.5*4.25+true_wind[1]) !=0:
                 reference_k=self.sign(math.sin(heading_angle-true_wind[1]))*math.tan(math.pi/6.5*4.25+true_wind[1])
                 reference_b=self.reference_point[1]-reference_k*self.reference_point[0]
-                point_to_line_distance=self.sign(math.sin(math.pi/6.5-true_wind[1]))(-sailboat_y+reference_k*sailboat_x+reference_b)/math.sqrt(1+reference_k**2)
+                
+                point_to_line_distance=self.sign(math.sin(math.pi/6.5-true_wind[1]))*(-sailboat_y+reference_k*sailboat_x+reference_b)/math.sqrt(1+reference_k**2)
                 #如果点在线下面，则point_to_line_distance>0
+                
                 if distance<self.accelerating_x_distance/2:
-                    target_angle=atan2(reference_k)+point_to_line_distance*(distance/self.accelerating_x_distance)**2
+                    self.target_angle=ref_angle+point_to_line_distance*(distance/self.accelerating_x_distance)**2
                 else:
-                    target_angle=atan2(reference_k)+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)
+                    self.target_angle=ref_angle+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)
             else:
                 point_to_line_distance=self.reference_point[0]-sailboat_x
+                
                 if distance<self.accelerating_x_distance/2:
-                    target_angle=math.pi/2*self.sign(math.sin(heading_angle))+point_to_line_distance*(distance/self.accelerating_x_distance)**2
+                    self.target_angle=ref_angle+point_to_line_distance*(distance/self.accelerating_x_distance)**2
                 else:
-                    target_angle=math.pi/2*self.sign(math.sin(heading_angle))+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)
+                    self.target_angle=ref_angle+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance)**2)
                 ##得到目标角度
         
-        if math.cos(true_wind[1]-target_angle)<-0.6: ##exceed dead angle
+        if math.cos(true_wind[1]-self.target_angle)<-0.6: ##exceed dead angle
         # print('in dead zone')
-            target_angle=sign(math.sin(true_wind[1]-target_angle))*0.88+true_wind[1]+math.pi
-        target_angle=self.regular_angle(target_angle)
-        return target_angle,target_v
+            self.target_angle=self.sign(math.sin(true_wind[1]-self.target_angle))*0.88+true_wind[1]+math.pi
+        self.target_angle=self.regular_angle(self.target_angle)
+        return self.target_angle,target_v
 
     def run(self,sailboat_x,sailboat_y,target,true_wind,heading_angle,sailboat_v):
         self.get_alternative_point(target,true_wind)
         current_area=self.determine_current_area(sailboat_x,sailboat_y,true_wind,target,heading_angle)
         distance=self.select_reference_point(current_area,sailboat_x,sailboat_y,heading_angle,true_wind)
+        # print('list',self.alternative_points_list,'ref_point',self.reference_point,current_area)
         if distance != -1:
-            target_angle,target_v=self.go_to_reference_point(sailboat_x,sailboat_y,current_area,distance,true_wind,heading_angle)
+            self.target_angle,target_v=self.go_to_reference_point(sailboat_x,sailboat_y,current_area,distance,true_wind,heading_angle)
         else:
             if current_area=='upper_area':
                 self.initial_wear_angle=heading_angle
+                target_v=0
             else:
-                if sailboat_v<0.4:
+                if sailboat_v<0.35:
                     
                     self.initial_wear_angle=heading_angle
+                    target_v=0
                 else:
                     if sailboat_v>0.5:
                         self.initial_tack_angle=heading_angle
+                        target_v=0.8
                     else:
-                        target_angle=self.sign(math.sin(heading_angle-true_wind[1]))*math.pi*0.65+true_wind[1]
-                        target_angle=self.regular_angle(target_angle)
+                        self.target_angle=self.sign(math.sin(heading_angle-true_wind[1]))*math.pi*0.65+true_wind[1]
+                        self.target_angle=self.regular_angle(self.target_angle)
                         target_v=0.8
 
-        target_angle,target_v=self.wear()
-        target_angle,target_v=self.tack()
-        return target_angle,target_v
+        self.target_angle,target_v=self.wear(true_wind,heading_angle,target_v)
+        self.target_angle,target_v=self.tack(sailboat_v,true_wind,heading_angle,target_v)
 
-    def wear(self,true_wind,heading_angle):
+        return self.target_angle,target_v
+
+    def wear(self,true_wind,heading_angle,target_v):
         if self.initial_wear_angle != None:
-            target_angle=heading_angle+self.sign(math.sin(true_wind[1]-self.initial_wear_angle))*2.5
-            target_angle=self.regular_angle(target_angle)
+            self.target_angle=heading_angle+self.sign(math.sin(true_wind[1]-self.initial_wear_angle))*2.5
+            self.target_angle=self.regular_angle(self.target_angle)
 
             if self.sign(math.sin(true_wind[1]-heading_angle)) !=self.sign(math.sin(true_wind[1]-self.initial_wear_angle)):
                 if math.cos(true_wind[1]-heading_angle)<-0.3:
                     self.initial_wear_angle=None
-        return target_angle,0
+            return self.target_angle,0
+        else:
+            return self.target_angle,target_v
+
     
-    def tack(self,sailboat_v,true_wind,heading_angle):
+    def tack(self,sailboat_v,true_wind,heading_angle,target_v):
         if self.initial_tack_angle != None:
-            target_angle=heading_angle-self.sign(math.sin(true_wind[1]-self.initial_tacj_angle))*2.5
-            target_angle=self.regular_angle(target_angle)
+            self.target_angle=heading_angle-self.sign(math.sin(true_wind[1]-self.initial_tack_angle))*2.5
+            self.target_angle=self.regular_angle(self.target_angle)
 
             if self.sign(math.sin(true_wind[1]-heading_angle)) !=self.sign(math.sin(true_wind[1]-self.initial_tack_angle)):
                 if math.cos(true_wind[1]-heading_angle)>-0.8:
                     self.initial_tack_angle=None
-        return target_angle,0
+            return self.target_angle,0.8
+        else:
+            return self.target_angle,target_v
 
     def regular_angle(self,angle):
         
