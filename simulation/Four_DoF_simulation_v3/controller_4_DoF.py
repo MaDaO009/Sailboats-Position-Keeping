@@ -131,6 +131,7 @@ def sign(x):
 
 def get_message(ser):
     mess=0
+    
     mess=ser.readline()
     mess=bytes.decode(mess)
     mess=str(mess)

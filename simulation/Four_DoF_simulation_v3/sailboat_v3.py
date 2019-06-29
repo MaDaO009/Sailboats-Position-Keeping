@@ -73,7 +73,7 @@ class sailboat:
         self.velocity,course_angle,self.position=self.velocity_updator.update_velocity(new_location,self.position)
         # print('vvvvv',self.velocity[0])
         [self.desired_angle,self.keeping_state,self.force_turning_angle,self.tacking_angle,
-        self.tacking_sign,self.start_tacking_time]=get_desired_angle.run(self.velocity,
+        self.tacking_sign,self.start_tacking_time,self.target_v]=get_desired_angle.run(self.velocity,
         self.position,self.target,self.true_wind,self.dT,self.dM,self.desired_angle,self.tacking_angle,self.tacking_sign,
         self.start_tacking_time,self.time,self.keeping_state,self.force_turning_angle,self.true_target)
 
@@ -88,9 +88,10 @@ class sailboat:
         self.rudder=self.rudder_controller.generate_command(self.desired_angle,adoptive_angle,self.keeping_state,
         self.velocity,self.tacking_angle,self.force_turning_angle,boat_to_target_angle,self.true_wind)    
         # print(self.rudder,self.velocity[0])
-        self.sail,self.target_v=self.sail_controller.generate_command(self.velocity,self.position,self.target,
-        self.true_wind,self.keeping_state,self.desired_angle,self.tacking_angle,self.force_turning_angle)
         
+        self.sail,self.target_v=self.sail_controller.generate_command(self.velocity,self.position,self.target,self.target_v,
+        self.true_wind,self.keeping_state,self.desired_angle,self.tacking_angle,self.force_turning_angle)
+        # print(self.sail,11111111111111111)
         
         
         return self.rudder,self.sail,self.desired_angle

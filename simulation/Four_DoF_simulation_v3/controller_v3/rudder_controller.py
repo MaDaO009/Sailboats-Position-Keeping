@@ -110,7 +110,7 @@ class rudder_controller():
             
         if self.sign_signal<0:    
             self.rudder=-self.maxrudder*self.sign(math.sin(desired_angle-true_wind[1]))/2
-        print(self.rudder)
+        # print(self.rudder)
         return self.rudder
   
     def regular_angle(self,angle):
