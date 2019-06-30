@@ -127,8 +127,8 @@ class position_keeper():
             #         self.target_angle=ref_angle+point_to_line_distance*(0.5-(1-distance/self.accelerating_x_distance))**2
             #     print('ref_angle',ref_angle,'target_angle',self.target_angle,'pl_distance',point_to_line_distance)
             self.target_angle=math.atan2(self.reference_point[1]-sailboat_y,self.reference_point[0]-sailboat_x)
-            if  math.cos(true_wind[1]-self.target_angle)>0.2: ##该角度下难以减速
-                self.target_angle=self.sign(math.sin(self.target_angle-true_wind[1]))*0.45*math.pi+true_wind[1]
+            if  math.cos(true_wind[1]-self.target_angle)>0.4: ##该角度下难以减速
+                self.target_angle=self.sign(math.sin(self.target_angle-true_wind[1]))*0.4*math.pi+true_wind[1]
 
             # else:
             #     point_to_line_distance=self.reference_point[0]-sailboat_x
@@ -211,7 +211,7 @@ class position_keeper():
 
         if self.start_acc_x != None and current_area=='lower_area':
             if sailboat_v>0.42:
-                self.accelerating_x_distance=abs(d_wind_y-self.start_acc_x)
+                self.accelerating_x_distance=0.1*(abs(d_wind_y-self.start_acc_x)-self.accelerating_x_distance)+self.accelerating_x_distance
                 self.start_acc_x=None
                 print('accerating distance',self.accelerating_x_distance)
             else:
@@ -234,7 +234,7 @@ class position_keeper():
             if self.sign(math.sin(true_wind[1]-heading_angle)) !=self.sign(math.sin(true_wind[1]-self.initial_wear_angle)):
                 if math.cos(true_wind[1]-heading_angle)<-0.3:
                     self.initial_wear_angle=None
-                    self.wearing_y_distance=abs(self.start_wear_y-d_wind_x)
+                    self.wearing_y_distance=(abs(self.start_wear_y-d_wind_x)-self.wearing_y_distance)*0.1+self.wearing_y_distance
                     print('wearing_y',self.wearing_y_distance)
                     self.start_wear_y=None
                     self.start_acc_x=d_wind_y

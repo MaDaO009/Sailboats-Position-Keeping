@@ -27,7 +27,7 @@ class visualazation():
         self.rudder=0
         self.sail=0
         self.target_v=0
-        
+        self.true_wind=[2,-math.pi/2]
         self.v=0
         self.u=0
         self.w=0
@@ -164,7 +164,7 @@ class visualazation():
             
         self.x=gl.get_value('x')
         self.y= gl.get_value('y')
-        
+        self.true_wind=gl.get_value('true_wind')
         self.desired_angle=gl.get_value('desired_angle')
         self.v=gl.get_value('v')
         self.u=gl.get_value('u')
@@ -284,7 +284,8 @@ class visualazation():
         self.line_win_sail,=self.main_window.plot(self.window_sail_x_data,self.window_sail_y_data,color='blue')
 
     def update_wind(self):
-        coo_wind=[0,-2]
+        
+        coo_wind=[math.cos(self.true_wind[1])*self.true_wind[0],math.sin(self.true_wind[1])*self.true_wind[0]]
         del_x=coo_wind[0]*2*self.boat_size
         del_y=coo_wind[1]*2*self.boat_size
         self.wind_y_data=np.array([3.75,del_y+3.75])
