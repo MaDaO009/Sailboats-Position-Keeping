@@ -32,7 +32,7 @@ class visualazation():
         self.u=0
         self.w=0
         self.target=[3.2,5.5]
-        self.boat_size=0.15
+        self.boat_size=0.25
         self.sample_time=0.01
         self.dT=1.3
         self.dM=2.6
@@ -84,6 +84,10 @@ class visualazation():
         self.v_data=np.linspace(self.v,self.v,100)
         self.line_forward_velocity, = self.forward_velocity_window.plot(self.v_x_data, self.v_data)
 
+        self.points_x=np.linspace(0, 0, 4)
+        self.points_y=np.linspace(0, 0, 4)
+        self.line_points,=self.main_window.plot(self.points_x,self.points_y,color='gray')
+        
         
         self.target_v_data=np.linspace(self.v,self.v,100)
         self.line_target_velocity, = self.forward_velocity_window.plot(self.v_x_data, self.target_v_data,color='gray')
@@ -133,16 +137,16 @@ class visualazation():
         self.boundary_x_data=np.array([0.8,5.5,5.5,0.8,0.8])
         self.line_boundary,=self.main_window.plot(self.boundary_x_data,self.boundary_y_data,color='gray',linestyle='--')
 
-        self.window_boat_y_data=5*self.boat_y_data+np.linspace(1.25,1.25,5)
-        self.window_boat_x_data=5*self.boat_x_data+np.linspace(6.75,6.75,5)
+        self.window_boat_y_data=2.5*self.boat_y_data+np.linspace(1.25,1.25,5)
+        self.window_boat_x_data=2.5*self.boat_x_data+np.linspace(6.75,6.75,5)
         self.line_win_boat,=self.main_window.plot(self.window_boat_x_data,self.window_boat_y_data)
 
-        self.window_rudder_y_data=3*self.rudder_y_data+np.linspace(1.25,1.25,2)
-        self.window_rudder_x_data=3*self.rudder_x_data+np.linspace(6.75,6.75,2)
+        self.window_rudder_y_data=1.5*self.rudder_y_data+np.linspace(1.25,1.25,2)
+        self.window_rudder_x_data=1.5*self.rudder_x_data+np.linspace(6.75,6.75,2)
         self.line_win_rudder,=self.main_window.plot(self.window_rudder_x_data,self.window_rudder_y_data)
 
-        self.window_sail_y_data=4*self.sail_y_data+np.linspace(1.25,1.25,2)
-        self.window_sail_x_data=4*self.sail_x_data+np.linspace(6.75,6.75,2)
+        self.window_sail_y_data=2*self.sail_y_data+np.linspace(1.25,1.25,2)
+        self.window_sail_x_data=2*self.sail_x_data+np.linspace(6.75,6.75,2)
         self.line_win_sail,=self.main_window.plot(self.window_sail_x_data,self.window_sail_y_data)
 
 
@@ -153,7 +157,7 @@ class visualazation():
     def init1(self):  # only required for blitting to give a clean slate.
         
         return [self.trajectory_line,self.line_forward_velocity,self.line_side_velocity,self.line_heading,self.line_boat,self.line_rudder,self.line_sail,self.line_win_boat,self.line_win_rudder,self.line_win_sail,
-        self.line_wind,self.line_disired_angle,self.line_boundary,self.line_desired_angle,self.line_target_velocity]
+        self.line_wind,self.line_disired_angle,self.line_boundary,self.line_desired_angle,self.line_target_velocity,self.line_points]
 
     def to_next_moment(self):
         # if gl.get_value('flag'):
@@ -195,7 +199,7 @@ class visualazation():
         
 
         return [self.trajectory_line,self.line_forward_velocity,self.line_side_velocity,self.line_heading,self.line_boat,self.line_rudder,self.line_sail,self.line_win_boat,self.line_win_sail,self.line_win_rudder,self.line_wind,self.line_disired_angle,self.line_boundary,
-        self.line_desired_angle,self.line_target_velocity]
+        self.line_desired_angle,self.line_target_velocity,self.line_points]
 
     def update_data(self):
         
@@ -257,16 +261,26 @@ class visualazation():
                                     [1.5*math.sin(self.heading_angle)*self.boat_size+self.y,1.5*math.sin(self.heading_angle)*self.boat_size+math.sin(self.desired_angle)*self.boat_size+self.y],color='gray')
 
     def update_window_boat(self):
-        self.window_boat_y_data=5*self.boat_y_data+np.linspace(1.25,1.25,5)
-        self.window_boat_x_data=5*self.boat_x_data+np.linspace(6.75,6.75,5)
+        try:
+            points_list=gl.get_value('point_list')
+            for i in range(0,4):
+                self.points_x[i]=points_list[i][0]
+                self.points_y[i]=points_list[i][1]
+            self.line_points.set_data(self.points_x,self.points_y)
+        except:
+            print('!!!!!!!!')
+        
+
+        self.window_boat_y_data=2.5*self.boat_y_data+np.linspace(1.25,1.25,5)
+        self.window_boat_x_data=2.5*self.boat_x_data+np.linspace(6.75,6.75,5)
         self.line_win_boat,=self.main_window.plot(self.window_boat_x_data,self.window_boat_y_data,color='black')
 
-        self.window_rudder_y_data=3*self.rudder_y_data+np.linspace(1.25,1.25,2)
-        self.window_rudder_x_data=3*self.rudder_x_data+np.linspace(6.75,6.75,2)
+        self.window_rudder_y_data=1.5*self.rudder_y_data+np.linspace(1.25,1.25,2)
+        self.window_rudder_x_data=1.5*self.rudder_x_data+np.linspace(6.75,6.75,2)
         self.line_win_rudder,=self.main_window.plot(self.window_rudder_x_data,self.window_rudder_y_data,color='blue')
 
-        self.window_sail_y_data=4*self.sail_y_data+np.linspace(1.25,1.25,2)
-        self.window_sail_x_data=4*self.sail_x_data+np.linspace(6.75,6.75,2)
+        self.window_sail_y_data=2*self.sail_y_data+np.linspace(1.25,1.25,2)
+        self.window_sail_x_data=2*self.sail_x_data+np.linspace(6.75,6.75,2)
         self.line_win_sail,=self.main_window.plot(self.window_sail_x_data,self.window_sail_y_data,color='blue')
 
     def update_wind(self):

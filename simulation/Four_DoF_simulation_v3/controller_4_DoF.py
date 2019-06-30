@@ -44,7 +44,7 @@ def run(ser):
 
     
     
-    my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.3,2.6],position=[0.5,1.5,0,0])
+    my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.4,2.6],position=[0.5,1.5,0,0])
     target=my_boat.target
     gl.set_value('target',target)
     times=0
@@ -74,7 +74,9 @@ def run(ser):
         roll=gl.get_value('roll')
         my_boat.frequency=frequency
         # print(gl.get_value('true_wind'))
-        rudder,sail,desired_angle=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
+        rudder,sail,desired_angle,point_list=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
+        # print('sail',sail)
+        
         if gl.get_value('keyboard_flag'):
             rudder=gl.get_value('rudder')
             sail=gl.get_value('sail')
@@ -111,6 +113,8 @@ def run(ser):
             # print(rudder,sail,'2')
         gl.set_value('desired_angle',desired_angle)
         gl.set_value('keeping_state',keeping_state)
+        gl.set_value('point_list',point_list)
+        
         time.sleep(1/frequency)
     
     # End the program        

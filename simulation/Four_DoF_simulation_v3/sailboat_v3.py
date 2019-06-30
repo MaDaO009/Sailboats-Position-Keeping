@@ -73,7 +73,7 @@ class sailboat:
         self.velocity,course_angle,self.position=self.velocity_updator.update_velocity(new_location,self.position)
         # print('vvvvv',self.velocity[0])
         [self.desired_angle,self.keeping_state,self.force_turning_angle,self.tacking_angle,
-        self.tacking_sign,self.start_tacking_time,self.target_v]=get_desired_angle.run(self.velocity,
+        self.tacking_sign,self.start_tacking_time,self.target_v,point_list]=get_desired_angle.run(self.velocity,
         self.position,self.target,self.true_wind,self.dT,self.dM,self.desired_angle,self.tacking_angle,self.tacking_sign,
         self.start_tacking_time,self.time,self.keeping_state,self.force_turning_angle,self.true_target)
 
@@ -94,7 +94,7 @@ class sailboat:
         # print(self.sail,11111111111111111)
         
         
-        return self.rudder,self.sail,self.desired_angle
+        return self.rudder,self.sail,self.desired_angle,point_list
 
     def compare_heading_and_course(self,course_angle):
         if abs(self.position[3]-course_angle)>0.4:

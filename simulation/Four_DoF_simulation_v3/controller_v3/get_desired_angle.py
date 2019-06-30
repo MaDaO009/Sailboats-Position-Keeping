@@ -4,11 +4,11 @@ from keep2 import position_keeper
 position_keeper=position_keeper()
 
 ref_point=[0,0]
-
+points_list=[[0,0],[0,0],[0,0],[0,0]]
 
 def run(velocity,position,target,true_wind,dT,dM,last_desired_angle,tacking_angle,tacking_sign,
 start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
-    
+    global points_list
     boat_to_target_angle=math.atan2(target[1]-position[1],target[0]-position[0])
     true_boat_to_target_angle=math.atan2(true_target[1]-position[1],true_target[0]-position[0])
     distance_st=math.sqrt(pow(target[1]-position[1],2)+pow(target[0]-position[0],2))
@@ -18,7 +18,7 @@ start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
     
 
     if distance_st>dT:
-        position_keeper.__init__()
+        position_keeper.init()
         keeping_state=0
         ref_point=[-10,-10]
         # print('dt',true_wind[1])
@@ -26,7 +26,7 @@ start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
         target_v=0
     else:
         keeping_state=1
-        desired_angle,target_v=position_keeper.run(position[0],position[1],target,true_wind,position[3],velocity[0])
+        desired_angle,target_v,points_list=position_keeper.run(position[0],position[1],target,true_wind,position[3],velocity[0])
         # print('@!!!!',target,position)
         # desired_angle,keeping_state=keeping_in_target_area(position,velocity,distance_st,target,keeping_state,
         # true_wind,boat_to_target_angle,dT,last_desired_angle)
@@ -45,7 +45,7 @@ start_tacking_time,counter,keeping_state,force_turning_angle,true_target):
 
     
     
-    return [desired_angle,keeping_state,force_turning_angle,tacking_angle,tacking_sign,start_tacking_time,target_v]
+    return [desired_angle,keeping_state,force_turning_angle,tacking_angle,tacking_sign,start_tacking_time,target_v,points_list]
 
 
 def boundary_detector(position,tacking_angle,true_wind,force_turning_angle,boat_to_target_angle):
@@ -80,7 +80,7 @@ def boundary_detector(position,tacking_angle,true_wind,force_turning_angle,boat_
 def tacking_detector(v,heading_angle,desired_angle,last_desired_angle,tacking_angle,tacking_sign,true_wind,
 start_tacking_time,counter,force_turning_angle,boat_to_target_angle):
     if tacking_angle ==None:
-        if math.cos(heading_angle-true_wind[1])+math.cos(desired_angle-true_wind[1])<0:
+        if math.cos(heading_angle-true_wind[1])+math.cos(desired_angle-true_wind[1])<0 and math.cos(heading_angle-true_wind[1])<0:
             
             if sign(math.sin(desired_angle-true_wind[1])) != sign(math.sin(heading_angle-true_wind[1])) and force_turning_angle==None:
                 ###Yes, it's a tacking
