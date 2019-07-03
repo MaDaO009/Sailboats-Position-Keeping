@@ -1,7 +1,7 @@
 import math
-from pid2 import PID
+from controller.pid2 import PID
 class sailcontroller():
-    def __init__(self,p_term=1,i_term=0.3,d_term=0.03,Dv_constant=0.4,ideal_angle=0.9):
+    def __init__(self,p_term=1,i_term=0.3,d_term=0.06,Dv_constant=0.4,ideal_angle=0.9):
         self.pid_adjustment=PID(P=p_term,I=i_term,D=d_term)
         self.sail=0
         self.maxsail=math.pi/12*5
@@ -9,10 +9,15 @@ class sailcontroller():
         self.Dv_constant=Dv_constant
         self.ideal_angle=ideal_angle
     
-    def generate_command(self,velocity,position,target,true_wind,keeping_state,desired_angle,
+    def generate_command(self,velocity,position,target,target_v,true_wind,keeping_state,desired_angle,
     tacking_angle,force_turning_angle):
         app_wind=self.get_app_wind(true_wind,position[3],velocity)
-        target_v=self.get_desire_v(velocity,position,target,true_wind,keeping_state,desired_angle)
+        if target_v==0.8:
+            self.pid_adjustment.clear()
+        if keeping_state==0:
+            # print(3333333)
+            target_v=self.get_desire_v(velocity,position,target,true_wind,keeping_state,desired_angle)
+        # print(target_v,11111111)
         optimal_sail =self.get_optimal_sail(position[3],app_wind)
         final_sail=self.get_final_sail(target_v,optimal_sail,velocity[0],position[3],app_wind,tacking_angle)
         if force_turning_angle != None:
@@ -26,16 +31,18 @@ class sailcontroller():
             target_v=distance_st*self.Dv_constant
             if math.cos(true_wind[1]-position[3])>0.3:
                 target_v=0.2
-        elif keeping_state==1:
-            target_v=0.45
-            # if math.cos(true_wind[1]-position[3])>math.cos(math.pi-self.ideal_angle):
-            #     target_v=0.15+0.01*math.asin(math.sin(abs(true_wind[1]-position[3])-(math.pi-self.ideal_angle)))
-            # else:
-            #     target_v=0.15
-        elif keeping_state==2:
-            target_v=0.1
-        else:
-            target_v=0
+        # elif keeping_state==1:
+        #     target_v=1.0
+        #     # if math.cos(true_wind[1]-position[3])>math.cos(math.pi-self.ideal_angle):
+        #     #     target_v=0.15+0.01*math.asin(math.sin(abs(true_wind[1]-position[3])-(math.pi-self.ideal_angle)))
+        #     # else:
+        #     #     target_v=0.15
+        # elif keeping_state==2:
+        #     target_v=0.5
+        # elif keeping_state==3:
+        #     target_v=0.2
+        # elif keeping_state==4:
+        #     target_v=0.1
         return target_v
 
 
@@ -80,6 +87,7 @@ class sailcontroller():
         ### get maxsail (considering the influence of wind)
         maxsail=min(self.maxsail,abs(app_wind[1]))
         offset=-self.pid_adjustment.update(v,target_v)
+        
         if self.maxsail-optimal_sail>0.2:
             final_sail=(maxsail+optimal_sail)/2+offset
             # print('!!!!!!!!!',(maxsail+optimal_sail)/2)
@@ -96,9 +104,13 @@ class sailcontroller():
                 # print(optimal_sail)
             elif final_sail<0.4:
                 final_sail=0.4
+        # print('offset',offset,'opt_sail',optimal_sail,'final sail',final_sail)
+        # print(self.pid_adjustment.PTerm,self.pid_adjustment.ITerm)
         # print(optimal_sail,target_v,offset,final_sail,'22222222')
-        if tacking_angle != None :
-            final_sail=self.maxsail
+
+        # if tacking_angle != None :
+        #     # print('!!!!!!!!!!!!!!!!!!')
+        #     final_sail=optimal_sail
         return final_sail   
         
         ### get abs(offset)

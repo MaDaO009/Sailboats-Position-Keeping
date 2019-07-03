@@ -12,7 +12,7 @@ Updated on FRI DEC 29 13:56:39 2018
 
 import time
 import globalvar as gl
-from sailboat_v3 import sailboat
+from sailboat_4_DOF_v2 import sailboat
 import math
 import serial 
 import re
@@ -20,14 +20,14 @@ import re
 
 
 def send(ser,rudder,sail,heading_angle):
-    rudder_output=75-rudder*69
+    rudder_output=75-rudder*70
+    sail=sail*57.33
     # print(rudder_output)
-    sail=sail*57.32
-    # sail_output=int(sail*50+20)
-    # if math.sin(heading_angle-math.pi/2)>0:
     sail_output=int(-0.0000159*sail**3+0.00043*sail**2+0.837*sail+30)
+    # if math.sin(heading_angle-math.pi/2)>0:
+    #     sail_output=35+(sail_output-35)*9/8
     command=rudder_output//1*100+sail_output
-    # print(sail_output,command)
+    print(command)
     command=(',,'+str(command)+',').encode(encoding='utf-8')
     ser.write(command)
 
@@ -37,15 +37,16 @@ def run(ser):
     #-----------ESC Configuration----------------------
     
     # ser=gl.get_value('ser')
-    # gl.set_value('x',2)
-    # gl.set_value('y',2)
+    gl.set_value('x',0)
+    gl.set_value('y',0)
     gl.set_value('flag',False)
     rudder=0
     sail=0
+    
 
     
     
-    my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.4,2.6],position=[0.5,1.5,0,0])
+    my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.3,2.6])
     target=my_boat.target
     gl.set_value('target',target)
     times=0
@@ -59,28 +60,29 @@ def run(ser):
             print('Program stops!')
             
             break
-
+        if gl.get_value('reset')==True:
+            print('aaaaaaaaaaaaaaaa')
+            gl.set_value('reset',False)
+            command=str('/12345r').encode(encoding='utf-8')
+            ser.write(command)
         ## change the frequency of communication when the sailboat arrives at its target area
         # if my_boat.if_keeping==True:
         #     gl.set_value('frequency',20)
         # else:
         #     gl.set_value('frequency',10)
 
-        # frequency=gl.get_value('frequency')
-        frequency=10
+        frequency=gl.get_value('frequency')
         ##get information of sailboat
-        x=gl.get_value('ob_x')
-        y=gl.get_value('ob_y')
+        x=gl.get_value('x')
+        y=gl.get_value('y')
         heading_angle=gl.get_value('heading_angle')
         roll=gl.get_value('roll')
         my_boat.frequency=frequency
-        # print(gl.get_value('true_wind'))
-        rudder,sail,desired_angle,point_list=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
-        # print('sail',sail)
         
+        rudder,sail,desired_angle=my_boat.update_state(gl.get_value('true_wind'),[x,y,roll,heading_angle])
         if gl.get_value('keyboard_flag'):
             rudder=gl.get_value('rudder')
-            sail=gl.get_value('sail')
+            # sail=gl.get_value('sail')
         v=my_boat.velocity[0]
         u=my_boat.velocity[1]
         p=my_boat.velocity[2]
@@ -100,10 +102,10 @@ def run(ser):
 
         #change the global variables
         gl.set_value('tacking_angle',my_boat.tacking_angle)
-        # gl.set_value('v',v)
-        # gl.set_value('u',u)
-        # gl.set_value('p',p)
-        # gl.set_value('w',w)
+        gl.set_value('v',v)
+        gl.set_value('u',u)
+        gl.set_value('p',p)
+        gl.set_value('w',w)
         gl.set_value('target_v',my_boat.target_v)
         # print(my_boat.target_v)
         # print(rudder,sail)
@@ -114,15 +116,13 @@ def run(ser):
             # print(rudder,sail,'2')
         gl.set_value('desired_angle',desired_angle)
         gl.set_value('keeping_state',keeping_state)
-        gl.set_value('point_list',point_list)
-        
         time.sleep(1/frequency)
     
     # End the program        
     
-    # send(ser,0,0,heading_angle)
+    send(ser,0,0,heading_angle)
     print('Motors Stopped \n')
-    time.sleep(0.1)
+    time.sleep(0.5)
    
  
 
@@ -136,11 +136,10 @@ def sign(x):
 
 def get_message(ser):
     mess=0
-    
     mess=ser.readline()
     mess=bytes.decode(mess)
     mess=str(mess)
-    # print(mess)
+    print(mess)
     if mess!=0:
         
         mess=mess.split(',')

@@ -87,9 +87,9 @@ class PID:
         # print(' ITERM',self.ITerm,end=' ')
         self.DTerm = 0.0
         self.DTerm = delta_error /self.sample_time
-        if abs(self.SetPoint-newPoint)>0.3:
+        if abs(self.SetPoint-newPoint)>0.5:
             self.ITerm=0
-            self.DTerm=0
+            # self.DTerm=0
             
         self.SetPoint=newPoint
         # Remember last time and last error for next calculation

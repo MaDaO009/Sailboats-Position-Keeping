@@ -14,12 +14,11 @@ Firstly, call the method update_pos(), then update_state() to get new sail and r
 import math
 import random
 import time
-from controller_v3.pid2 import PID
-from controller_v3.rudder_controller import rudder_controller
-from controller_v3.update_info import info_updator
-from controller_v3.sail_control import sailcontroller
-import controller_v3.get_desired_angle as get_desired_angle
-
+from pid2 import PID
+from rudder_controller_v2 import rudder_controller
+from update_info import info_updator
+from sail_control_v2 import sailcontroller
+import get_desired_angle_v2 as get_desired_angle
 
 class sailboat:
 
@@ -39,18 +38,17 @@ class sailboat:
         self.sail=0           ### the positive direction is counterclockwise
         
         self.target_v=0
+
+        self.target=target    ###the center of target area[x,y]   self.dM=10,which is the radius of the pre-arrived area ,self.dT=5,which is r of target area          
+        self.frequency=1/sample_time
         self.dT=area[0]       ## radius of target area
         self.dM=area[1]       ## radius of pre arrive
-        self.target=target    ###the center of target area[x,y]   self.dM=10,which is the radius of the pre-arrived area ,self.dT=5,which is r of target area          
-        self.true_target=[target[0]+math.sin(true_wind[1]+math.pi/2)*self.dT/2,target[1]-math.cos(true_wind[1]+math.pi/2)*self.dT/2]
-        self.frequency=1/sample_time
-        
         self.keeping_state=0
 
         self.true_wind=true_wind       ##[wind speed, direction]
 
         self.rudder_controller=rudder_controller()
-        self.velocity_updator=info_updator()
+        self.velocity_updator=info_updator(list_lens=8)
         self.sail_controller=sailcontroller()
         
 
@@ -60,7 +58,7 @@ class sailboat:
 
     ## predict the state for next moment and make decision  
     def update_state(self,true_wind,new_location):
-        self.time+=3
+        self.time+=1
         new_location[3]=self.regular_angle(new_location[3])
         boat_to_target_angle=math.atan2(self.target[1]-self.position[1],self.target[0]-self.position[0])
 
@@ -69,13 +67,13 @@ class sailboat:
         
         self.true_wind=true_wind
         self.get_app_wind()
-        # print('sailboat',self.true_wind[1])
+
         self.velocity,course_angle,self.position=self.velocity_updator.update_velocity(new_location,self.position)
-        # print('vvvvv',self.velocity[0])
+
         [self.desired_angle,self.keeping_state,self.force_turning_angle,self.tacking_angle,
-        self.tacking_sign,self.start_tacking_time,self.target_v,point_list]=get_desired_angle.run(self.velocity,
+        self.tacking_sign,self.start_tacking_time]=get_desired_angle.run(self.velocity,
         self.position,self.target,self.true_wind,self.dT,self.dM,self.desired_angle,self.tacking_angle,self.tacking_sign,
-        self.start_tacking_time,self.time,self.keeping_state,self.force_turning_angle,self.true_target)
+        self.start_tacking_time,self.time,self.keeping_state,self.force_turning_angle)
 
         # self.desired_angle=0.6
 
@@ -83,21 +81,19 @@ class sailboat:
             self.desired_angle=-math.pi/2
 
         adoptive_angle=self.compare_heading_and_course(course_angle)
-        # print(self.desired_angle,adoptive_angle,end=' ')
-        
+
         self.rudder=self.rudder_controller.generate_command(self.desired_angle,adoptive_angle,self.keeping_state,
         self.velocity,self.tacking_angle,self.force_turning_angle,boat_to_target_angle,self.true_wind)    
-        # print(self.rudder,self.velocity[0])
         
-        self.sail,self.target_v=self.sail_controller.generate_command(self.velocity,self.position,self.target,self.target_v,
+        self.sail,self.target_v=self.sail_controller.generate_command(self.velocity,self.position,self.target,
         self.true_wind,self.keeping_state,self.desired_angle,self.tacking_angle,self.force_turning_angle)
-        # print(self.sail,11111111111111111)
+    
         
         
-        return self.rudder,self.sail,self.desired_angle,point_list
+        return self.rudder,self.sail,self.desired_angle
 
     def compare_heading_and_course(self,course_angle):
-        if abs(self.position[3]-course_angle)>0.4:
+        if math.cos(self.position[3]-course_angle)<0.85:
             return self.position[3]
         else:
             return course_angle
