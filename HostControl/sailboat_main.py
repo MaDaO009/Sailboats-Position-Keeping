@@ -16,6 +16,7 @@ import time
 # import plot
 import serial
 
+
 import controller_4_DoF
 import data_writer
 import database
@@ -23,13 +24,13 @@ import get_message
 import globalvar as gl
 import keyboard_control
 import visualization
-
+import simulator
 # import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
-    ser=serial.Serial('COM3',57600)
-
+    # ser=serial.Serial('COM3',57600)
+    ser='1'
     gl.set_value('flag',False) # Stop sign
      # initial heading angle zero
     gl.set_value('desired_angle',0)
@@ -42,6 +43,8 @@ if __name__ == "__main__":
     gl.set_value('y',0)
     gl.set_value('roll',0)
     gl.set_value('heading_angle',0)
+    
+    
     gl.set_value('keeping_state',1)
     gl.set_value('tacking_angle',None)
     gl.set_value('current',0)
@@ -56,12 +59,12 @@ if __name__ == "__main__":
     t1 = threading.Thread(target= controller_4_DoF.run,kwargs={'ser':ser}) # Receiving Commands
     t2 = threading.Thread(target= get_message.run,kwargs={'ser':ser})
     t3 = threading.Thread(target= data_writer.run)
-    t4 = threading.Thread(target= database.run)
+    t4 = threading.Thread(target= simulator.run)
     t5 = threading.Thread(target= keyboard_control.main)
     
     
     t1.start() # start thread 1
-    t2.start() # start thread 2
+    # t2.start() # start thread 2
     t3.start() # start thread 3
     t4.start()
     t5.start()
@@ -69,7 +72,7 @@ if __name__ == "__main__":
     my_plot.plot()
 
     t1.join() # wait for the t1 thread to complete
-    t2.join() # wait for the t2 thread to complete
+    # t2.join() # wait for the t2 thread to complete
     t3.join() # wait for the t3 thread to complete
     t4.join()
     t5.join()

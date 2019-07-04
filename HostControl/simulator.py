@@ -6,6 +6,11 @@ import random
 
 simulation_frequency=100
 
+gl.set_value('v',0)
+gl.set_value('u',0)
+gl.set_value('p',0)
+gl.set_value('w',0)
+gl.set_value("current_sail",0)
 def sign(p):
     
     if p>0:
@@ -67,7 +72,7 @@ def run():
         true_wind=gl.get_value("true_wind")
         true_wind[1]+=0.001
         gl.set_value('true_wind',true_wind)
-
+        
         current_sail=gl.get_value('current_sail')
         current_sail=moving_sail(sail,current_sail)
 
@@ -93,6 +98,7 @@ def run():
         gl.set_value("p",p)
         gl.set_value("w",w)
         gl.set_value("x",x)
+        # print(x)
         gl.set_value('ob_x',x+random.random()*0.03)
         gl.set_value("y",y)
         gl.set_value('ob_y',y+random.random()*0.03)

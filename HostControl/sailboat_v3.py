@@ -14,11 +14,11 @@ Firstly, call the method update_pos(), then update_state() to get new sail and r
 import math
 import random
 import time
-from controller_v3.pid2 import PID
-from controller_v3.rudder_controller import rudder_controller
-from controller_v3.update_info import info_updator
-from controller_v3.sail_control import sailcontroller
-import controller_v3.get_desired_angle as get_desired_angle
+from controller.pid2 import PID
+from controller.rudder_controller import rudder_controller
+from controller.update_info import info_updator
+from controller.sail_control import sailcontroller
+import controller.get_desired_angle as get_desired_angle
 
 
 class sailboat:
@@ -62,6 +62,7 @@ class sailboat:
     def update_state(self,true_wind,new_location):
         self.time+=3
         new_location[3]=self.regular_angle(new_location[3])
+        # print(new_location[0],'!!!!!!')
         boat_to_target_angle=math.atan2(self.target[1]-self.position[1],self.target[0]-self.position[0])
 
         if self.time>self.runtimes:

@@ -29,7 +29,7 @@ def send(ser,rudder,sail,heading_angle):
     command=rudder_output//1*100+sail_output
     # print(sail_output,command)
     command=(',,'+str(command)+',').encode(encoding='utf-8')
-    ser.write(command)
+    # ser.write(command)
 
 #-------------Receiving Commands-----------------
 def run(ser):
@@ -69,8 +69,9 @@ def run(ser):
         # frequency=gl.get_value('frequency')
         frequency=10
         ##get information of sailboat
-        x=gl.get_value('ob_x')
-        y=gl.get_value('ob_y')
+        x=gl.get_value('x')
+        
+        y=gl.get_value('y')
         heading_angle=gl.get_value('heading_angle')
         roll=gl.get_value('roll')
         my_boat.frequency=frequency
