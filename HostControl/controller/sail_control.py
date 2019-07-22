@@ -104,6 +104,9 @@ class sailcontroller():
                 # print(optimal_sail)
             elif final_sail<0.4:
                 final_sail=0.4
+        
+        if target_v>=0.8:
+            final_sail=optimal_sail
         # print('offset',offset,'opt_sail',optimal_sail,'final sail',final_sail)
         # print(self.pid_adjustment.PTerm,self.pid_adjustment.ITerm)
         # print(optimal_sail,target_v,offset,final_sail,'22222222')

@@ -36,7 +36,7 @@ if __name__ == "__main__":
     gl.set_value('sail',0) 
     gl.set_value('rudder',0)
     gl.set_value('frequency',10)
-    gl.set_value('true_wind',[1.5,-math.pi/2])
+    gl.set_value('true_wind',[4.5,-math.pi/2])
     gl.set_value('target',[0,0]) 
     gl.set_value('x',0.5)
     gl.set_value('y',1.5)

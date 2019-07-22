@@ -262,6 +262,7 @@ class visualazation():
 
     def update_window_boat(self):
         try:
+            
             points_list=gl.get_value('point_list')
             for i in range(0,4):
                 self.points_x[i]=points_list[i][0]

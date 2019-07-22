@@ -4,7 +4,7 @@ import copy
 
 
 class position_keeper():
-    def __init__(self,accelerating_x_distance=0.9,wearing_y_distance=0.7,dT=1.3):
+    def __init__(self,accelerating_x_distance=0.75,wearing_y_distance=0.7,dT=1.3):
         self.alternative_points_list=[[0,0],[0,0],[0,0],[0,0]] 
         #[upper_left_point,upper_right_point,lower_left_point,lower_right_point]
         
@@ -34,12 +34,17 @@ class position_keeper():
         d_wind_x=-dx*math.cos(true_wind[1])-dy*math.sin(true_wind[1])
         d_wind_y=dx*math.sin(true_wind[1])-dy*math.cos(true_wind[1])
         sgn=self.sign(math.sin(heading_angle-true_wind[1]))
-        if d_wind_x<-d_wind_y*self.sign(math.sin(heading_angle-true_wind[1]))*math.sin(math.pi/6.3):
+
+        if d_wind_x<-d_wind_y*self.sign(math.sin(heading_angle-true_wind[1]))*math.sin(math.pi/6.5) or self.accelerating_x_distance*math.tan(math.pi/5)>self.wearing_y_distance:
             ## Up wind area:
             upper_dx=(self.accelerating_x_distance-self.wearing_y_distance/2+0.4)/2
+            if self.accelerating_x_distance*math.tan(math.pi/5)>self.wearing_y_distance:
+                print('aaa')
+                upper_dx=self.wearing_y_distance/1.7
             self.reference_point[0]=target[0]-sgn*upper_dx*math.sin(true_wind[1])-self.wearing_y_distance/2*math.cos(true_wind[1])
             self.reference_point[1]=target[1]+sgn*upper_dx*math.cos(true_wind[1])-self.wearing_y_distance/2*math.sin(true_wind[1])
             
+                
             return "upper_area",d_wind_y,d_wind_x
         else:
             lower_dx=(self.accelerating_x_distance+self.wearing_y_distance/2-0.4)/2
@@ -112,6 +117,7 @@ class position_keeper():
                 if sailboat_v<0.35: 
                     if self.initial_wear_angle==None:
                         self.start_wear_y=d_wind_x
+                        self.accelerating_x_distance+=0.1
                         self.start_acc_x=None
                         print('start_wear',self.start_wear_y,sailboat_v)
                         self.initial_wear_angle=heading_angle

@@ -16,9 +16,10 @@ def run(ser):
 
         mess=0
         mess=ser.readline()
+        
         mess=bytes.decode(mess)
         mess=str(mess)
-        
+        # print(mess)
         if mess!=0:
             
             mess=mess.split(',')
@@ -44,7 +45,7 @@ def run(ser):
                 heading_angle=b/57.32
                 if heading_angle>math.pi:
                     heading_angle-=math.pi*2
-                
+                # print(heading_angle)
                 gl.set_value('heading_angle',heading_angle)
                 gl.set_value('current',current)
                 gl.set_value('voltage',voltage)

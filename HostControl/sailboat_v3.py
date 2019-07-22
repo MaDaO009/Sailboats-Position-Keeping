@@ -28,6 +28,7 @@ class sailboat:
     true_wind=[3,-math.pi/2],runtimes=3100):
     ####    all the units of angles are rad 
         self.velocity=[0,0,0,0] ###[v,u,p,r], where v is the heading angle of the sailboat 
+        self.raw_velocity=[0,0,0,0]
         self.desired_angle=0 
         self.tacking_angle=None
         self.tacking_sign=None
@@ -60,7 +61,7 @@ class sailboat:
 
     ## predict the state for next moment and make decision  
     def update_state(self,true_wind,new_location):
-        self.time+=3
+        self.time+=1
         new_location[3]=self.regular_angle(new_location[3])
         # print(new_location[0],'!!!!!!')
         boat_to_target_angle=math.atan2(self.target[1]-self.position[1],self.target[0]-self.position[0])
@@ -71,7 +72,7 @@ class sailboat:
         self.true_wind=true_wind
         self.get_app_wind()
         # print('sailboat',self.true_wind[1])
-        self.velocity,course_angle,self.position=self.velocity_updator.update_velocity(new_location,self.position)
+        self.velocity,course_angle,self.position,self.raw_velocity=self.velocity_updator.update_velocity(new_location,self.position)
         # print('vvvvv',self.velocity[0])
         [self.desired_angle,self.keeping_state,self.force_turning_angle,self.tacking_angle,
         self.tacking_sign,self.start_tacking_time,self.target_v,point_list]=get_desired_angle.run(self.velocity,

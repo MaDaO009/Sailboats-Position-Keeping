@@ -46,6 +46,7 @@ def run(ser):
 
     
     
+    
     my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.3,2.6])
     target=my_boat.target
     gl.set_value('target',target)

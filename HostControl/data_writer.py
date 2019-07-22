@@ -19,7 +19,11 @@ def run():
     global rudder
     global sail
 
-   
+    [raw_v,raw_u,raw_w,raw_p]=[0,0,0,0]
+    gl.set_value('raw_v',raw_v)
+    gl.set_value('raw_u',raw_u)
+    gl.set_value('raw_p',raw_p)
+    gl.set_value('raw_w',raw_w)
     
     try:
         print('Starting Current Sensor')
@@ -51,9 +55,10 @@ def run():
                 DataPoints.append([timevalue, ruddervalue, sailvalue, gl.get_value('x'),gl.get_value('y'),
                 roll,headingvalue,gl.get_value('desired_angle'), 0,gl.get_value('v'),
                 gl.get_value('u'),gl.get_value('p'),gl.get_value('w'),currentvalue, voltagevalue,powervalue,
-                gl.get_value('keeping_state'),gl.get_value('tacking_angle'),gl.get_value('target_v')]) # Updating DataPoints Array
-                if sensor_times==0:
-                    print('current:',currentvalue,'voltage',voltagevalue,'heading',headingvalue)
+                gl.get_value('keeping_state'),gl.get_value('tacking_angle'),gl.get_value('target_v'),
+                gl.get_value('raw_v'),gl.get_value('raw_u'),gl.get_value('raw_p'),gl.get_value('raw_w')]) # Updating DataPoints Array
+                # if sensor_times==0:
+                #     print('current:',currentvalue,'voltage',voltagevalue,'heading',headingvalue)
             except DeviceRangeError:
                 print('Device Range Error')
 
@@ -105,8 +110,8 @@ def writing(Data):
     worksheet.write('S1',"target v",bold)
     worksheet.write('T1', 'Start Time', bold)
     worksheet.write('T2', runDate)
-    worksheet.write('T3', target)
-    worksheet.write('T4', 'dM:1.8,dT:1')
+    worksheet.write('U3', target)
+    worksheet.write('U4', 'dM:1.8,dT:1')
     
 
     row = 1 # Starting Row (0 indexed)
@@ -117,26 +122,7 @@ def writing(Data):
     print('Total number of rows: ',n)
 
     print('Writing Data into Worksheet')
-        
-    # for Time, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14,value15,value16,value17,value18 in (Data):
-    #     # Writing Data in XLSX file
-            
-    #     worksheet.write(row, col, Time)
-    #     worksheet.write(row, col+1, value1)
-    #     worksheet.write(row, col+2, value2)
-    #     worksheet.write(row, col+3, value3)
-    #     worksheet.write(row, col+4, value4)
-    #     worksheet.write(row, col+5, value5)
-    #     worksheet.write(row, col+6, value6)
-    #     worksheet.write(row, col+7, value7)
-    #     worksheet.write(row, col+8, value8)
-    #     worksheet.write(row, col+9, value9)
-    #     worksheet.write(row, col+11, value10)
-    #     worksheet.write(row, col+12, value11)
-    #     worksheet.write(row, col+13, value12)
-    #     worksheet.write(row, col+14, value13)
-    #     worksheet.write(row, col+15, value14)
-    #     row += 1
+
     for values in (Data):
         # Writing Data in XLSX file
         i=0

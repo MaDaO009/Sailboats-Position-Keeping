@@ -29,15 +29,15 @@ import simulator
 
 
 if __name__ == "__main__":
-    # ser=serial.Serial('COM3',57600)
-    ser='1'
+    ser=serial.Serial('COM3',57600)
+    
     gl.set_value('flag',False) # Stop sign
      # initial heading angle zero
     gl.set_value('desired_angle',0)
     gl.set_value('sail',0) 
     gl.set_value('rudder',0)
     gl.set_value('frequency',10)
-    gl.set_value('true_wind',[1.5,-math.pi/2])
+    gl.set_value('true_wind',[3,-math.pi/2])
     gl.set_value('target',[0,0]) 
     gl.set_value('x',0)
     gl.set_value('y',0)
@@ -61,10 +61,11 @@ if __name__ == "__main__":
     t3 = threading.Thread(target= data_writer.run)
     t4 = threading.Thread(target= simulator.run)
     t5 = threading.Thread(target= keyboard_control.main)
+    t6 = threading.Thread(target= database.run)
     
-    
+    t6.start()
     t1.start() # start thread 1
-    # t2.start() # start thread 2
+    t2.start() # start thread 2
     t3.start() # start thread 3
     t4.start()
     t5.start()
@@ -72,10 +73,11 @@ if __name__ == "__main__":
     my_plot.plot()
 
     t1.join() # wait for the t1 thread to complete
-    # t2.join() # wait for the t2 thread to complete
+    t2.join() # wait for the t2 thread to complete
     t3.join() # wait for the t3 thread to complete
     t4.join()
     t5.join()
+    # t6.join()
     ser.close()
     # conn.close()
     time.sleep(1)

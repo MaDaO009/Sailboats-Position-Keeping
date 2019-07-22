@@ -31,10 +31,10 @@ class visualazation():
         self.v=0
         self.u=0
         self.w=0
-        self.target=[3.2,5.5]
+        self.target=[3.2,6]
         self.boat_size=0.15
         self.sample_time=0.01
-        self.dT=1.3
+        self.dT=1.6
         self.dM=2.6
     def create_window(self):
         self.figure = plt.figure()

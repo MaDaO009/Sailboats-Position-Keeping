@@ -2,7 +2,7 @@ import math
 from pykalman import KalmanFilter
 import numpy as np
 class info_updator():
-    def __init__(self,list_lens=5,frequency=10):
+    def __init__(self,list_lens=7,frequency=10):
         self.v_list=[0]*list_lens
         self.u_list=[0]*list_lens
         self.p_list=[0]*2
@@ -38,7 +38,7 @@ class info_updator():
         
         [last_x,last_y,last_roll,last_heading]=self.position
 
-        velocity=self.get_velocity(x,last_x,y,last_y,heading_angle,last_heading,roll,last_roll)
+        velocity,raw_velocity=self.get_velocity(x,last_x,y,last_y,heading_angle,last_heading,roll,last_roll)
         
         course_angle=math.atan2(self.position[1]-last_y,self.position[0]-last_x)
         
@@ -46,7 +46,7 @@ class info_updator():
 
         
 
-        return velocity,course_angle,self.position
+        return velocity,course_angle,self.position,raw_velocity
             
     def get_velocity(self,x,last_x,y,last_y,heading_angle,last_heading,roll,last_roll):
         del_x=x-last_x
@@ -59,9 +59,13 @@ class info_updator():
         r=(heading_angle-last_heading)*self.frequency
         p=(roll-last_roll)*self.frequency
         
+        raw_v=v
+        raw_u=u
+        raw_r=r
+        raw_p=p
         ### due to the noise, the velocity we choose is the mean value of the velocities in 0.7 second.
         self.v_list.pop(0)
-        if abs(v)>3:
+        if v>3 or v<-1:
             v=self.v_list[self.list_lens-2]
         self.v_list.append(v)
 
@@ -92,7 +96,7 @@ class info_updator():
             r+=self.r_list[i]/2
             p+=self.p_list[i]/2
         # print('aaaaa',v)
-        return [v,u,p,r]
+        return [v,u,p,r],[raw_v,raw_u,raw_r,raw_p]
 
     def smoothing_curve(self):
         observations=np.array([[0,0]])

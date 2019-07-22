@@ -26,10 +26,12 @@ def send(ser,rudder,sail,heading_angle):
     # sail_output=int(sail*50+20)
     # if math.sin(heading_angle-math.pi/2)>0:
     sail_output=int(-0.0000159*sail**3+0.00043*sail**2+0.837*sail+30)
+    # sail_output=int(0.7*57.32*sail+20)
     command=rudder_output//1*100+sail_output
     # print(sail_output,command)
     command=(',,'+str(command)+',').encode(encoding='utf-8')
-    # ser.write(command)
+    # print('command',command)
+    ser.write(command)
 
 #-------------Receiving Commands-----------------
 def run(ser):
@@ -45,7 +47,7 @@ def run(ser):
 
     
     
-    my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.4,2.6],position=[0.5,1.5,0,0])
+    my_boat=sailboat(runtimes=3000,target=[3.2,6],area=[1.6,2.6],position=[0.5,1.5,0,0])
     target=my_boat.target
     gl.set_value('target',target)
     times=0
@@ -101,10 +103,18 @@ def run(ser):
 
         #change the global variables
         gl.set_value('tacking_angle',my_boat.tacking_angle)
-        # gl.set_value('v',v)
-        # gl.set_value('u',u)
-        # gl.set_value('p',p)
-        # gl.set_value('w',w)
+        gl.set_value('v',v)
+        gl.set_value('u',u)
+        gl.set_value('p',p)
+        gl.set_value('w',w)
+        [raw_v,raw_u,raw_w,raw_p]=my_boat.raw_velocity
+        gl.set_value('raw_v',raw_v)
+        gl.set_value('raw_u',raw_u)
+        gl.set_value('raw_p',raw_p)
+        gl.set_value('raw_w',raw_w)
+
+
+
         gl.set_value('target_v',my_boat.target_v)
         # print(my_boat.target_v)
         # print(rudder,sail)

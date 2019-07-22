@@ -65,8 +65,9 @@ def run():
         roll=gl.get_value("roll")
         heading_angle=gl.get_value('heading_angle')
         true_wind=gl.get_value("true_wind")
-        true_wind[1]+=0.001
+        # true_wind[1]+=0.001
         gl.set_value('true_wind',true_wind)
+        
 
         current_sail=gl.get_value('current_sail')
         current_sail=moving_sail(sail,current_sail)
