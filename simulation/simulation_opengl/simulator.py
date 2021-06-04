@@ -1,10 +1,3 @@
-"""
-Created on Sat DEC 22 21:33:18 2018
-
-@author: Zeyuan Feng
-
-Simulator
-"""
 import four_DOF_simulator_v2
 import globalvar as gl
 import math
@@ -25,8 +18,9 @@ def sign(p):
 def moving_sail(sail,current_sail):
         
     try:
-        if abs(sail-current_sail)>3/simulation_frequency:
-            current_sail+=sign(sail-current_sail)*3/simulation_frequency
+        if abs(sail-current_sail)>1/simulation_frequency:
+            current_sail+=sign(sail-current_sail)*1/simulation_frequency
+            # print('moving sail')
     except:
         print('an exception occurred when moving sail')
     return current_sail
@@ -35,6 +29,7 @@ def get_true_sail(sail,app_wind):
     
     if math.sin(app_wind[1])>0:
         sail=-sail
+    # print([app_wind,sail])
     if math.cos(app_wind[1]+math.pi)>math.cos(sail) or abs(app_wind[1]-sign(app_wind[1])*math.pi-sail)<0.02:
         sail=app_wind[1]-sign(app_wind[1])*math.pi
 
@@ -79,16 +74,20 @@ def run():
 
         app_wind=get_app_wind(true_wind,v,u,heading_angle)
         true_sail=get_true_sail(current_sail,app_wind)
+        # print(true_sail,app_wind[1],"ttttssss")
+        # print([u,v,p,w],[x,y,roll,heading_angle],111)
         s_frame_true_wind[1]=math.pi/2-true_wind[1]
         a,b,app_wind[1]=four_DOF_simulator_v2.to_next_moment(1/simulation_frequency,v,-u,-p,-w,y,x,-roll,math.pi/2-heading_angle,true_sail,rudder,s_frame_true_wind,counter)
         [v,u,p,w]=-a
         
+        # print(app_wind)
         app_wind[1]=-app_wind[1]
         v*=-1
 
         [y,x,roll,heading_angle]=b
         roll=-roll
         heading_angle=math.pi/2-heading_angle
+        
         gl.set_value("current_sail",current_sail)
         gl.set_value("v",v)
         gl.set_value("u",u)
@@ -101,5 +100,6 @@ def run():
         gl.set_value("roll",roll)
         gl.set_value("heading_angle",heading_angle)
         gl.set_value("app_wind",app_wind)
+        # print('simulating')
         time.sleep(0.01)
    

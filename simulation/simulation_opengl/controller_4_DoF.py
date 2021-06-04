@@ -1,5 +1,5 @@
 """
-Updated on SAT DEC 29 13:56:39 2018
+Updated on FRI DEC 29 13:56:39 2018
 
 @author: Zeyuan Feng
 
@@ -44,7 +44,7 @@ def run(ser):
 
     
     
-    my_boat=sailboat(runtimes=10,target=[3.2,5.5],area=[1.4,2.6],position=[0.5,1.5,0,0])
+    my_boat=sailboat(runtimes=3000,target=[3.2,5.5],area=[1.4,2.6],position=[0.5,1.5,0,0])
     target=my_boat.target
     gl.set_value('target',target)
     times=0
@@ -56,7 +56,6 @@ def run(ser):
         if my_boat.flag==True:
             gl.set_value('flag',True)
             print('Program stops!')
-            
             break
 
         ## change the frequency of communication when the sailboat arrives at its target area
