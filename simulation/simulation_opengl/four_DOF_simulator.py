@@ -47,7 +47,7 @@ class single_sailboat_4DOF_simulator:
 
         self.counter+=1
         # if self.counter%5==0: print(sail_torque,[app_wind_speed,angle_app_wind,wind_angle_of_attack,self.true_sail])
-        print(sail_torque,[app_wind_speed,angle_app_wind,wind_angle_of_attack,self.true_sail])
+        # print(sail_torque,[app_wind_speed,angle_app_wind,wind_angle_of_attack,self.true_sail])
         return self.v_and_angular_v,self.location_and_orientation,self.true_sail
 
 
@@ -93,11 +93,11 @@ class single_sailboat_4DOF_simulator:
         
         sail_torque=np.array([sail_lift*math.sin(angle_app_wind)-sail_drag*math.cos(angle_app_wind),
                             sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind),
-                            (sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind))*0.4,
+                            (-sail_lift*math.cos(angle_app_wind)-sail_drag*math.sin(angle_app_wind))*0.4,
                             -(sail_lift*math.sin(angle_app_wind)-sail_drag*math.cos(angle_app_wind))*0.03*math.sin(self.true_sail)
                             +(sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind))*(0.2-0.12*math.cos(self.true_sail))])
         sail_torque=sail_torque.T
-
+        if self.counter%100==0: print(-sail_lift*math.cos(angle_app_wind),-sail_drag*math.sin(angle_app_wind))
         return sail_torque
 
     def get_rudder_torque(self):

@@ -81,5 +81,5 @@ class simulator:
         t3.join()
         t4.join()
         
-a=simulator(total_step=10,simulation_cycle=0.01)
+a=simulator(total_step=1000,simulation_cycle=0.01)
 a.run()

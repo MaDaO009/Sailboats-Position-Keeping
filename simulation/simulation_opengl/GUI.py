@@ -33,6 +33,7 @@ class scene_displayer:
         self.rudder=rudder
         self.cycle=cycle
         self.stop_signal=False
+        self.window_size=(600,400)
 
     def init_obj(self,obj,name):
         box = (obj.vertices[0], obj.vertices[0])
@@ -192,9 +193,9 @@ class scene_displayer:
 
     def main(self):
             pygame.init()
-            display = (1200, 800)
-            pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
-            gluPerspective(45, (display[0] / display[1]), 1, 500.0)
+            # display = (1200, 800)
+            pygame.display.set_mode(self.window_size, DOUBLEBUF | OPENGL)
+            gluPerspective(45, (self.window_size[0] / self.window_size[1]), 1, 500.0)
             glTranslatef(0.0, 0.0, -10)
             i=0
             k=0
