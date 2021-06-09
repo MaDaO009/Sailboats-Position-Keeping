@@ -7,6 +7,7 @@ from time import time,sleep
 import math
 from sailboat_v3 import sailboat
 import four_DOF_simulator_v2
+import data_writer
 
 class simulator:
     def __init__(self,controller=sailboat(),init_pose=np.array([0,0,0,0]),init_v=[0,0,0,0],GUI_EN=False,total_step=1000,
@@ -29,6 +30,7 @@ class simulator:
         self.simulation_cycle=simulation_cycle
         self.GUI_cycle=GUI_cycle
         self.true_wind=true_wind
+        self.data_writer=data_writer.data_writer(cycle=command_cycle,mission="position keeping")
 
     def update_info_with_GUI(self):
         while (not self.stop_signal):
@@ -50,32 +52,34 @@ class simulator:
             if sleep_time>0:
                 sleep(sleep_time)
         
-    def compute_command(self):
+    def compute_command_and_write_data(self):
         while (not self.stop_signal):
             self.counter+=1
             start_time=time()
             self.rudder_command,self.sail_command,a,b=self.controller.update_state(self.true_wind,self.location_and_orientation)
+
+            self.data_writer.add_data(self.location_and_orientation,self.velocity_and_angular_v,self.sail_command,
+                                        self.rudder_command,self.true_wind,0,0)
+
             sleep_time=self.command_cycle-(time()-start_time)
             if sleep_time>0:
                 sleep(sleep_time)
             if self.counter>self.total_step:
                 self.stop_signal=True
+                self.data_writer.write_data_points()
 
 
     def run(self):
         t1 = threading.Thread(target= self.GUI.main) 
         t2 = threading.Thread(target= self.update_info_with_GUI)
         t3 = threading.Thread(target= self.compute_dynamic)
-        t4 = threading.Thread(target= self.compute_command)
+        t4 = threading.Thread(target= self.compute_command_and_write_data)
 
         t1.start() # start thread 1
-        print("t1_start")
         t2.start()
-        print("t2_start")
         t3.start()
-        print("t3_start")
         t4.start()
-        print("t4_start")
+
         t1.join() # wait for the t1 thread to complete
         t2.join()
         t3.join()

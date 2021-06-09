@@ -97,7 +97,6 @@ class single_sailboat_4DOF_simulator:
                             -(sail_lift*math.sin(angle_app_wind)-sail_drag*math.cos(angle_app_wind))*0.03*math.sin(self.true_sail)
                             +(sail_lift*math.cos(angle_app_wind)+sail_drag*math.sin(angle_app_wind))*(0.2-0.12*math.cos(self.true_sail))])
         sail_torque=sail_torque.T
-        if self.counter%100==0: print(-sail_lift*math.cos(angle_app_wind),-sail_drag*math.sin(angle_app_wind))
         return sail_torque
 
     def get_rudder_torque(self):
