@@ -10,9 +10,9 @@ import four_DOF_simulator_v2
 import data_writer
 
 class simulator:
-    def __init__(self,controller=sailboat(),init_pose=np.array([0,0,0,0]),init_v=[0,0,0,0],GUI_EN=False,total_step=1000,
+    def __init__(self,controller=sailboat(),init_pose=np.array([0,0,0,0]),init_v=[0,0,0,0],GUI_EN=True,total_step=1000,
             true_wind=[1.5,-math.pi/2],command_cycle=0.1,simulation_cycle=0.001,GUI_cycle=0.02,sail_command=0,true_sail=0,
-            rudder_command=0):
+            rudder_command=0,save=True,observer=None,experiment=False):
         self.controller=sailboat(position=init_pose,true_wind=true_wind)
         self.dynamic_model=four_DOF_simulator.single_sailboat_4DOF_simulator(location_and_orientation=init_pose,sample_time=simulation_cycle)
         self.GUI=GUI.scene_displayer(pos_and_orientation=init_pose,cycle=GUI_cycle)
@@ -31,6 +31,9 @@ class simulator:
         self.GUI_cycle=GUI_cycle
         self.true_wind=true_wind
         self.data_writer=data_writer.data_writer(cycle=command_cycle,mission="position keeping")
+        self.save=save
+        self.observer=observer
+        self.experiment=experiment
 
     def update_info_with_GUI(self):
         while (not self.stop_signal):
@@ -66,24 +69,50 @@ class simulator:
                 sleep(sleep_time)
             if self.counter>self.total_step:
                 self.stop_signal=True
-                self.data_writer.write_data_points()
+                if self.save:
+                    self.data_writer.write_data_points()
 
 
     def run(self):
-        t1 = threading.Thread(target= self.GUI.main) 
-        t2 = threading.Thread(target= self.update_info_with_GUI)
-        t3 = threading.Thread(target= self.compute_dynamic)
-        t4 = threading.Thread(target= self.compute_command_and_write_data)
+        if self.GUI_EN:
+            t1 = threading.Thread(target= self.GUI.main) 
+            t2 = threading.Thread(target= self.update_info_with_GUI)
+            if not self.experiment:
+                t3 = threading.Thread(target= self.compute_dynamic)
+            else:
+                t3 = threading.Thread(target= self.observer.run)
+            t4 = threading.Thread(target= self.compute_command_and_write_data)
 
-        t1.start() # start thread 1
-        t2.start()
-        t3.start()
-        t4.start()
+            t1.start() # start thread 1
+            t2.start()
+            t3.start()
+            t4.start()
 
-        t1.join() # wait for the t1 thread to complete
-        t2.join()
-        t3.join()
-        t4.join()
+            t1.join() # wait for the t1 thread to complete
+            t2.join()
+            t3.join()
+            t4.join()
+        else:
+            start_time=time()
+            if self.command_cycle/self.simulation_cycle<5:
+                print("Simulation frequency should be at least 5 times of controller frequency")
+            else:
+                for i in range(self.total_step):
+                    for j in range(int(self.command_cycle/self.simulation_cycle)):
+                        # Compute dynamics
+                        self.velocity_and_angular_v,self.location_and_orientation,self.true_sail=\
+                            self.dynamic_model.step(self.location_and_orientation,self.velocity_and_angular_v,self.sail_command,\
+                                self.rudder_command, self.true_wind)
+                    
+                    # Compute command
+                    self.rudder_command,self.sail_command,a,b=self.controller.update_state(self.true_wind,self.location_and_orientation)
+                    # Record data
+                    self.data_writer.add_data(self.location_and_orientation,self.velocity_and_angular_v,self.sail_command,
+                                                self.rudder_command,self.true_wind,0,0)
+                print("Simulated %d steps within %0.3f second(s)"%(self.total_step,(time()-start_time)))
+                if self.save: self.data_writer.write_data_points()
+            
+
         
-a=simulator(total_step=1000,simulation_cycle=0.01)
+a=simulator(total_step=100,simulation_cycle=0.01,save=False)
 a.run()

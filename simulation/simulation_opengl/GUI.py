@@ -12,12 +12,14 @@ from scipy.spatial.transform import Rotation
 
 
 class scene_displayer:
-    def __init__(self,pos_and_orientation=[0,0,0,0],rudder=0,sail=0,cycle=0.01):
+    def __init__(self,pos_and_orientation=[0,0,0,0],rudder=0,sail=0,cycle=0.01,pool_size=[6,9]):
             
         self.boat = pywavefront.Wavefront('boat.obj', collect_faces=True)
         self.scaled_size   = 1
-        self.color=np.random.random(3)
-        self.color2=np.random.random(3)
+        self.boat_color=[0.1,0.1,0.1]
+        self.sail_color=[0.8,0.9,1]
+        self.rudder_color=[0.8,0.9,1]
+
         self.boat_scale,self.boat_trans=self.init_obj(self.boat,'boat')
 
         self.rudder_obj=pywavefront.Wavefront('rudder.obj', collect_faces=True)
@@ -34,6 +36,9 @@ class scene_displayer:
         self.cycle=cycle
         self.stop_signal=False
         self.window_size=(600,400)
+        self.pool_size=pool_size
+        
+        
 
     def init_obj(self,obj,name):
         box = (obj.vertices[0], obj.vertices[0])
@@ -56,8 +61,62 @@ class scene_displayer:
             trans[0]=box[1][0]
         if name=='sail':
             trans[0]=box[1][0]
-        print(name,trans,box,scale)
+
         return scale,trans
+    
+    def draw_pool(self,x,y):
+        # glPushMatrix()
+        glPushName(1)
+        glBegin(GL_QUADS)
+        # glColor4f(0.05, 0.05, 0.95, 0.3)
+        glColor3f(0.2,0.2,0.2)
+        glNormal3f(0.0, 0.0, 1.0) # Allows for light to reflect off certain parts of surface
+        glVertex3f(x, 0.0, 0.0)
+        glVertex3f(x, y, 0.0)
+        glVertex3f(x, y, -1.0)
+        glVertex3f(x, 0.0, -1.0)
+
+
+        # Back face 
+        glNormal3f(0.0, 0.0,-1.0)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(0.0, y, 0.0)
+        glVertex3f(0.0, y, -1.0)
+        glVertex3f(0.0, 0.0, -1.0)
+
+
+        # Left face 
+        glNormal3f(-1.0,0.0, 0.0)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(x, 0.0, 0.0)
+        glVertex3f(x, 0.0, -1.0)
+        glVertex3f(0.0, 0.0, -1.0)
+
+        # Right face 
+        glNormal3f(1.0, 0.0, 0.0)
+        glVertex3f(x, y, 0.0)
+        glVertex3f(x, y, -1.0)
+        glVertex3f(0.0, y, -1.0)
+        glVertex3f(0.0, y, 0.0)
+
+        # Bottom face
+        glColor3f(0.2,0.2,0.2)
+        glNormal3f(0.0, 1.0, 0.0)
+        glVertex3f(0.0, 0.0, -1.0)
+        glVertex3f(x, 0.0, -1.0)
+        glVertex3f(x,y, -1.0)
+        glVertex3f(0.0, y, -1.0)
+
+        # Top face 
+        glColor4f(0.2, 0.2, 0.95, 0.5)
+        glNormal3f(0.0,-1.0, 0.0)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(0.0, y, 0.0)
+        glVertex3f(x, y, 0.0)
+        glVertex3f(x, 0.0, 0.0)
+        glEnd()
+
+
     def Draw_boat(self,x,y,roll,yaw,rudder,sail):
         st=time()
         rot = Rotation.from_euler('zyx', [yaw, roll, 0], degrees=True)
@@ -77,9 +136,9 @@ class scene_displayer:
         roll_mat=np.array(rot_roll.as_matrix())
         ############################################# Hull ##################################################
         glPushMatrix()
-
+        glColor3f(*self.boat_color)  
         glScalef(*self.boat_scale)
-        glTranslatef(*np.array([x,y,0]))
+        glTranslatef(*np.array([x,y,0.25*270]))
         glRotatef(math.sqrt(np.sum(rot_vec**2))*57.32, rot_vec[1], rot_vec[0], rot_vec[2])
         glTranslatef(*-self.boat_trans)
 
@@ -91,34 +150,9 @@ class scene_displayer:
                     glVertex3f(*np.array(self.boat.vertices[vertex_i]))
             glEnd()
         
-        glColor3f(*self.color)  # 设定颜色RGB
+        
         glPopMatrix()
         ############################################# Hull ##################################################
-
-        ############################################# Axis ##################################################
-        # glPushMatrix()
-        # glScalef(*self.boat_scale)
-        # glTranslatef(*np.array([x,y,z]))
-        # glRotatef(math.sqrt(np.sum(rot_vec**2))*57.32, rot_vec[1], rot_vec[0], rot_vec[2])
-        # glTranslatef(*-self.boat_trans)
-
-        # glBegin(GL_LINES)
-
-        # glColor3f (1.0, 1.0, 0.0)
-        # glVertex3f(0.0, 0.0, 0.0)
-        # glVertex3f(200.0, 0.0, 0.0)
-
-        # glColor3f (1.0, 1.0, 0.0)
-        # glVertex3f(0.0, 0.0, 0.0)
-        # glVertex3f(0.0, 200.0, 0.0)
-
-        # glColor3f (1.0, 1.0, 0.0)
-        # glVertex3f(0.0, 0.0, 0.0)
-        # glVertex3f(0.0, 0.0, 200.0)
-        # glEnd()
-
-        # glPopMatrix()
-        ############################################# Axis ##################################################
 
 
 
@@ -126,8 +160,8 @@ class scene_displayer:
         glPushMatrix()
         glScalef(*self.rudder_scale)
         # rot_mat*
-        glColor3f (0.0, 1.0, 1.0)
-        glTranslatef(*np.array([x,y,0])*self.boat_scale/self.rudder_scale)
+        glColor3f (*self.rudder_color)
+        glTranslatef(*np.array([x,y,0.25*270])*self.boat_scale/self.rudder_scale)
         glRotatef(math.sqrt(np.sum(rot_vec**2))*57.32, rot_vec[1], rot_vec[0], rot_vec[2])
         glTranslatef(*np.array([-120,0,-60]))
         glRotatef(rudder,0,0,1)
@@ -139,8 +173,6 @@ class scene_displayer:
                 for vertex_i in face:
                     glVertex3f(*np.array(self.rudder_obj.vertices[vertex_i]))
             glEnd()
-        
-        glColor3f(*self.color2)  # 设定颜色RGB
         glPopMatrix()
         ############################################ Rudder #################################################
 
@@ -171,9 +203,9 @@ class scene_displayer:
 
         ############################################# Sail ##################################################
         glPushMatrix()
-        
+        glColor3f(*self.sail_color)  
         glScalef(*self.sail_scale)
-        glTranslatef(*np.array([x,y,0])*self.boat_scale/self.sail_scale)
+        glTranslatef(*np.array([x,y,0.25*270])*self.boat_scale/self.sail_scale)
         glRotatef(math.sqrt(np.sum(rot_vec**2))*57.32, rot_vec[1], rot_vec[0], rot_vec[2])
         glTranslatef(*np.array([1000,0,7000]))
         glRotatef(sail,0,0,1)
@@ -187,7 +219,7 @@ class scene_displayer:
             glEnd()
 
 
-        glColor3f(*self.color)  # 设定颜色RGB
+        
         glPopMatrix()
         ############################################# Sail ##################################################
 
@@ -195,8 +227,10 @@ class scene_displayer:
             pygame.init()
             # display = (1200, 800)
             pygame.display.set_mode(self.window_size, DOUBLEBUF | OPENGL)
+            
             gluPerspective(45, (self.window_size[0] / self.window_size[1]), 1, 500.0)
-            glTranslatef(0.0, 0.0, -10)
+            
+            glTranslatef(-self.pool_size[0]/2, -self.pool_size[1]/2, -12)
             i=0
             k=0
             j=0
@@ -231,14 +265,15 @@ class scene_displayer:
                         if event.key == pygame.K_e:
                             glTranslatef(0,0,-1)
 
-                
+                # glEnable(GL_CULL_FACE)
                 glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-                
+                # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
                 # self.Draw_boat(1000*math.sin(i),1000*math.cos(i),0,j,j,j*2,j*2)
-                
+                self.draw_pool(self.pool_size[0],self.pool_size[1])
                 self.Draw_boat(*self.pos_and_orientation,self.rudder*57.32,self.sail*57.32)
+                
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
                 pygame.display.flip()
