@@ -6,16 +6,16 @@ import numpy as np
 from time import time,sleep
 import math
 from sailboat_v3 import sailboat
-import four_DOF_simulator_v2
 import data_writer
 
 class simulator:
-    def __init__(self,controller=sailboat(),init_pose=np.array([0,0,0,0]),init_v=[0,0,0,0],GUI_EN=True,total_step=1000,
+    def __init__(self,controller=sailboat(),init_pose=np.array([1,1,0,0]),init_v=[0,0,0,0],GUI_EN=True,total_step=1000,
             true_wind=[1.5,-math.pi/2],command_cycle=0.1,simulation_cycle=0.001,GUI_cycle=0.02,sail_command=0,true_sail=0,
-            rudder_command=0,save=True,observer=None,experiment=False):
+            rudder_command=0,save=True,observer=None,experiment=False,boat_type="sailboat"):
         self.controller=sailboat(position=init_pose,true_wind=true_wind)
-        self.dynamic_model=four_DOF_simulator.single_sailboat_4DOF_simulator(location_and_orientation=init_pose,sample_time=simulation_cycle)
-        self.GUI=GUI.scene_displayer(pos_and_orientation=init_pose,cycle=GUI_cycle)
+        self.dynamic_model=four_DOF_simulator.single_sailboat_4DOF_simulator(location_and_orientation=init_pose,
+                                                    boat_type=boat_type,sample_time=simulation_cycle)
+        self.GUI=GUI.scene_displayer(pos_and_orientation=init_pose,cycle=GUI_cycle,boat_type=boat_type)
         
         self.counter=0
         self.location_and_orientation=np.array(init_pose)
@@ -46,14 +46,14 @@ class simulator:
         while (not self.stop_signal):
             start_time=time()
             self.velocity_and_angular_v,self.location_and_orientation,self.true_sail=\
-                self.dynamic_model.step(self.location_and_orientation,self.velocity_and_angular_v,self.sail_command,\
-                    self.rudder_command, self.true_wind)
+                self.dynamic_model.step(self.location_and_orientation,self.velocity_and_angular_v,
+                [self.sail_command,self.rudder_command], self.true_wind)
 
-            
             sleep_time=self.simulation_cycle-(time()-start_time)
 
             if sleep_time>0:
                 sleep(sleep_time)
+
         
     def compute_command_and_write_data(self):
         while (not self.stop_signal):
@@ -73,6 +73,7 @@ class simulator:
                     self.data_writer.write_data_points()
 
 
+
     def run(self):
         if self.GUI_EN:
             t1 = threading.Thread(target= self.GUI.main) 
@@ -89,6 +90,7 @@ class simulator:
             t4.start()
 
             t1.join() # wait for the t1 thread to complete
+            self.stop_signal=True
             t2.join()
             t3.join()
             t4.join()
@@ -114,5 +116,5 @@ class simulator:
             
 
         
-a=simulator(total_step=100,simulation_cycle=0.01,save=False)
+a=simulator(total_step=1000,simulation_cycle=0.01,save=False,boat_type='sailboat')
 a.run()

@@ -7,15 +7,16 @@ from lift_and_drag import *
     m=2
 '''
 class single_sailboat_4DOF_simulator:
-    def __init__(self,sample_time=0.001,v_and_angular_v=[0,0,0,0],boat_type="sailboat",
-        location_and_orientation=[0,0,0,0],command=[0,0],true_sail=0,true_wind=[0,0]):
+    def __init__(self,sample_time=0.001,v_and_angular_v=[0,0,0,0],
+        location_and_orientation=[0,0,0,0],com_sail=0,true_sail=0,rudder=0,true_wind=[0,0]):
         self.sample_time=sample_time
-        self.boat_type=boat_type
+
         self.v_and_angular_v=np.array(v_and_angular_v).T  #[u,v,p,r]
         self.location_and_orientation=np.array(location_and_orientation).T #[x,y,roll,yaw]
 
-        self.command=command
+        self.com_sail=com_sail
         self.true_sail=true_sail
+        self.rudder=rudder
         self.true_wind=np.array(true_wind)
         self.M=np.array([[2.5,0.0,0.0,0.0],
                 [0.0,2.5,0.0,0.0],
@@ -26,24 +27,20 @@ class single_sailboat_4DOF_simulator:
 
 
 
-    def step(self,location_and_orientation,v_and_angular_v,command,true_wind): 
+    def step(self,location_and_orientation,v_and_angular_v,com_sail,rudder,true_wind): 
         
-        self.update_parameters(location_and_orientation,v_and_angular_v,command,true_wind)
+        self.update_parameters(location_and_orientation,v_and_angular_v,com_sail,rudder,true_wind)
         app_wind_speed,angle_app_wind,wind_angle_of_attack=self.get_app_wind()
 
         self.get_true_sail(angle_app_wind)
         self.move_sail()
-        if self.boat_type=='sailboat':
-            power_torque=self.get_sail_torque(wind_angle_of_attack,app_wind_speed,angle_app_wind)
-        elif self.boat_type=='rudderboat':
-            thruster_command=1
-            power_torque=self.get_thruster_torque(thruster_command)
+        sail_torque=self.get_sail_torque(wind_angle_of_attack,app_wind_speed,angle_app_wind)
         rudder_torque=self.get_rudder_torque()
         Coriolis_v=self.get_C_v()
         D_vn=self.get_D_vn(app_wind_speed,angle_app_wind)
         g_n=self.get_g_n()
         j_n=self.get_j_n()
-        all_other_terms=-Coriolis_v.dot(self.v_and_angular_v)-D_vn-g_n+power_torque+rudder_torque
+        all_other_terms=-Coriolis_v.dot(self.v_and_angular_v)-D_vn-g_n+sail_torque+rudder_torque
         
         self.v_and_angular_v+=self.M_inv.dot(all_other_terms)*self.sample_time
         self.location_and_orientation+=j_n.dot(self.v_and_angular_v)*self.sample_time
@@ -53,26 +50,24 @@ class single_sailboat_4DOF_simulator:
         # print(sail_torque,[app_wind_speed,angle_app_wind,wind_angle_of_attack,self.true_sail])
         return self.v_and_angular_v,self.location_and_orientation,self.true_sail
 
-    def get_thruster_torque(self,thruster_command):
-        return [0,0,0,0]
-        
+
     def move_sail(self):
-        if abs(self.command[0]-self.true_sail)>self.sample_time*3:
-            self.true_sail+=self.sign(self.command[0]-self.true_sail)*self.sample_time*3
+        if abs(self.com_sail-self.true_sail)>self.sample_time*3:
+            self.true_sail+=self.sign(self.com_sail-self.true_sail)*self.sample_time*3
 
     def get_true_sail(self,angle_app_wind):  
         if math.sin(angle_app_wind)>0:
-            self.command[0]=-self.command[0]
-        if math.cos(angle_app_wind+math.pi)>math.cos(self.command[0]) or abs(angle_app_wind-self.sign(angle_app_wind)*math.pi-self.command[0])<0.02:
-            self.command[0]=angle_app_wind-self.sign(angle_app_wind)*math.pi
+            self.com_sail=-self.com_sail
+        if math.cos(angle_app_wind+math.pi)>math.cos(self.com_sail) or abs(angle_app_wind-self.sign(angle_app_wind)*math.pi-self.com_sail)<0.02:
+            self.com_sail=angle_app_wind-self.sign(angle_app_wind)*math.pi
     
 
-    def update_parameters(self,location_and_orientation,v_and_angular_v,command,true_wind):
+    def update_parameters(self,location_and_orientation,v_and_angular_v,com_sail,rudder,true_wind):
         self.v_and_angular_v=np.array(v_and_angular_v).T
         self.location_and_orientation=np.array(location_and_orientation).T
 
-        self.command[0]=command[0]
-        self.command[1]=command[1]
+        self.com_sail=com_sail
+        self.rudder=rudder
         self.true_wind=np.array(true_wind)
 
         self.v_and_angular_v=self.v_and_angular_v.astype(np.float64)
@@ -112,7 +107,7 @@ class single_sailboat_4DOF_simulator:
         
         rudder_speed=math.sqrt(v_rudder**2+u_rudder**2)
         angle_app_rudder=-math.atan2(-v_rudder,-u_rudder)
-        rudder_angle_of_attack=angle_app_rudder+self.command[1]
+        rudder_angle_of_attack=angle_app_rudder+self.rudder
         
         rudder_lift=7.2*rudder_speed**2*get_rudder_lift_coefficient(rudder_angle_of_attack)
         rudder_drag=7.2*rudder_speed**2*get_rudder_drag_coefficient(rudder_angle_of_attack)

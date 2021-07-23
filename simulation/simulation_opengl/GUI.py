@@ -12,11 +12,11 @@ from scipy.spatial.transform import Rotation
 
 
 class scene_displayer:
-    def __init__(self,pos_and_orientation=[0,0,0,0],rudder=0,sail=0,cycle=0.01,pool_size=[6,9]):
-            
+    def __init__(self,pos_and_orientation=[0,0,0,0],rudder=0,sail=0,cycle=0.01,pool_size=[6,9],boat_type="sailboat"):
+        self.boat_type=boat_type
         self.boat = pywavefront.Wavefront('boat.obj', collect_faces=True)
         self.scaled_size   = 1
-        self.boat_color=[0.1,0.1,0.1]
+        self.boat_color=[0.5,0.5,0.5]
         self.sail_color=[0.8,0.9,1]
         self.rudder_color=[0.8,0.9,1]
 
@@ -35,7 +35,7 @@ class scene_displayer:
         self.rudder=rudder
         self.cycle=cycle
         self.stop_signal=False
-        self.window_size=(600,400)
+        self.window_size=(1200,800)
         self.pool_size=pool_size
         
         
@@ -155,7 +155,7 @@ class scene_displayer:
         ############################################# Hull ##################################################
 
 
-
+        if self.boat_type=="diffboat": return
         ############################################ Rudder #################################################
         glPushMatrix()
         glScalef(*self.rudder_scale)
@@ -199,8 +199,8 @@ class scene_displayer:
 
         glPopMatrix()
         ############################################# Axis ##################################################
-
-
+        if self.boat_type=="rudderboat": return
+        
         ############################################# Sail ##################################################
         glPushMatrix()
         glColor3f(*self.sail_color)  
@@ -224,63 +224,65 @@ class scene_displayer:
         ############################################# Sail ##################################################
 
     def main(self):
-            pygame.init()
-            # display = (1200, 800)
-            pygame.display.set_mode(self.window_size, DOUBLEBUF | OPENGL)
+        pygame.init()
+        # display = (1200, 800)
+        pygame.display.set_mode(self.window_size, DOUBLEBUF | OPENGL)
+        
+        gluPerspective(45, (self.window_size[0] / self.window_size[1]), 1, 500.0)
+        
+        glTranslatef(-self.pool_size[0]/2, -self.pool_size[1]/2, -12)
+        i=0
+        k=0
+        j=0
+        d=1
+        
+        while (not self.stop_signal):
+            start_time=time()
+            k=(k+1)%360
+            i+=0.01
+            j+=d
+            if abs(j)>=50:
+                d*=-1
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        glTranslatef(0.5,0,0)
+                    if event.key == pygame.K_RIGHT:
+                        glTranslatef(-0.5,0,0)
+                    if event.key == pygame.K_UP:
+                        glTranslatef(0,-1,0)
+                    if event.key == pygame.K_DOWN:
+                        glTranslatef(0,1,0)
+                    if event.key == pygame.K_w:
+                        glRotatef(10, 1, 0, 0)
+                    if event.key == pygame.K_s:
+                        glRotatef(-10, 1, 0, 0)
+                    if event.key == pygame.K_q:
+                        glTranslatef(0,0,1)
+                    if event.key == pygame.K_e:
+                        glTranslatef(0,0,-1)
+
+            # glEnable(GL_CULL_FACE)
+            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+
+            # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            # self.Draw_boat(1000*math.sin(i),1000*math.cos(i),0,j,j,j*2,j*2)
+            self.draw_pool(self.pool_size[0],self.pool_size[1])
+            self.Draw_boat(*self.pos_and_orientation,self.rudder*57.32,self.sail*57.32)
             
-            gluPerspective(45, (self.window_size[0] / self.window_size[1]), 1, 500.0)
-            
-            glTranslatef(-self.pool_size[0]/2, -self.pool_size[1]/2, -12)
-            i=0
-            k=0
-            j=0
-            d=1
-            while (not self.stop_signal):
-                start_time=time()
-                k=(k+1)%360
-                i+=0.01
-                j+=d
-                if abs(j)>=50:
-                    d*=-1
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        quit()
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_LEFT:
-                            glTranslatef(0.5,0,0)
-                        if event.key == pygame.K_RIGHT:
-                            glTranslatef(-0.5,0,0)
-                        if event.key == pygame.K_UP:
-                            glTranslatef(0,-1,0)
-                        if event.key == pygame.K_DOWN:
-                            glTranslatef(0,1,0)
-                        if event.key == pygame.K_w:
-                            glRotatef(10, 1, 0, 0)
-                        if event.key == pygame.K_s:
-                            glRotatef(-10, 1, 0, 0)
-                        if event.key == pygame.K_q:
-                            glTranslatef(0,0,1)
-                        if event.key == pygame.K_e:
-                            glTranslatef(0,0,-1)
-
-                # glEnable(GL_CULL_FACE)
-                glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-
-                # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-                # self.Draw_boat(1000*math.sin(i),1000*math.cos(i),0,j,j,j*2,j*2)
-                self.draw_pool(self.pool_size[0],self.pool_size[1])
-                self.Draw_boat(*self.pos_and_orientation,self.rudder*57.32,self.sail*57.32)
-                
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-
-                pygame.display.flip()
-                # pygame.time.wait(10)
-                sleep_time=self.cycle-(time()-start_time)
-                if sleep_time>0:
-                    sleep(sleep_time)
+            pygame.display.flip()
+            # pygame.time.wait(10)
+            sleep_time=self.cycle-(time()-start_time)
+            if sleep_time>0:
+                sleep(sleep_time)
+        print("command stop")
 
 
     def update_pose(self,pos_and_orientation,rudder,sail,stop_signal):
